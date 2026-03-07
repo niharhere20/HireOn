@@ -1,0 +1,113 @@
+# AI-First HR Startup – Database Design
+
+## 1. Users
+
+id (uuid, PK)
+name
+email (unique)
+role (HR | INTERVIEWER | CANDIDATE)
+createdAt
+
+---
+
+## 2. Candidates
+
+id (uuid, PK)
+userId (FK Users)
+resumeUrl
+resumeText
+status (applied | shortlisted | scheduled | rejected)
+assignedRequirementId (nullable FK)
+createdAt
+
+---
+
+## 3. AIProfiles
+
+id (uuid, PK)
+candidateId (FK Candidates)
+experienceYears
+seniorityLevel
+extractedSkills (jsonb)
+inferredSkills (jsonb)
+strengths
+weaknesses
+matchScore
+hireProbability
+rawResponse (jsonb)
+createdAt
+
+---
+
+## 4. TechRequirements
+
+id (uuid, PK)
+title
+techStack (jsonb)
+minExperience
+matchThreshold
+openings
+createdByHRId (FK Users)
+createdAt
+
+---
+
+## 5. AvailabilitySlots
+
+id (uuid, PK)
+userId (FK Users)
+startTime (timestamp)
+endTime (timestamp)
+isBooked (boolean default false)
+createdAt
+
+---
+
+## 6. Interviews
+
+id (uuid, PK)
+candidateId (FK Candidates)
+interviewerId (FK Users)
+hrId (FK Users)
+startTime
+endTime
+meetLink
+status (scheduled | completed | cancelled)
+feedback (text nullable)
+aiSummary (text nullable)
+createdAt
+
+Unique Constraints:
+- (interviewerId, startTime)
+- (candidateId, startTime)
+
+---
+
+## 7. AuditLogs
+
+id (uuid, PK)
+actorId (FK Users)
+action
+entityType
+entityId
+timestamp
+
+---
+
+## Indexing Strategy
+
+Index:
+- Candidates.status
+- AIProfiles.matchScore
+- TechRequirements.techStack (GIN)
+- AvailabilitySlots.userId
+- Interviews.startTime
+
+---
+
+## Scaling Readiness
+
+- JSONB for AI flexibility
+- Separate AIProfiles for extensibility
+- Soft deletes for auditability
+- Foreign key cascades disabled for safety

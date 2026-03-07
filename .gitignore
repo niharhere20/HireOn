@@ -1,0 +1,21 @@
+# Environment — never commit secrets
+**/.env
+**/.env.*
+!**/.env.example
+
+# Claude Code local settings (may contain secrets in bash history)
+.claude/
+
+# Dependencies
+**/node_modules/
+
+# Build output
+**/dist/
+**/.next/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

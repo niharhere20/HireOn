@@ -1,0 +1,352 @@
+AI Hiring Intelligence Platform
+Product Vision, Roadmap & Client Pitch Document
+1. Executive Summary
+
+Hiring today is slow, manual, biased, and operationally heavy.
+
+Recruiters:
+
+Spend hours screening resumes
+
+Manually coordinate interview slots
+
+Lose strong candidates due to delays
+
+Forget previously rejected but strong profiles
+
+Our solution is an:
+
+AI-First Hiring Intelligence Platform
+That screens, scores, matches, and schedules automatically — while building a permanent talent memory.
+
+This is not an HRMS.
+
+This is an AI Hiring Brain for modern companies.
+
+2. The Problem
+Operational Pain Points
+
+Resume overload
+HR teams manually read 100+ resumes per role.
+
+Subjective screening
+Inconsistent evaluation across recruiters.
+
+Scheduling chaos
+Back-and-forth email coordination.
+
+Data loss
+Rejected candidates are never reused.
+
+No hiring intelligence
+No structured data to improve future hiring.
+
+3. The Solution
+
+An AI-driven hiring system that:
+
+Automatically analyzes resumes
+
+Generates structured candidate intelligence
+
+Matches candidates to role requirements
+
+Auto-assigns qualified applicants
+
+Schedules interviews without conflict
+
+Creates Google Meet links instantly
+
+Stores every applicant permanently for future hiring
+
+4. Core Product Features
+1. AI Resume Intelligence Engine
+
+When a candidate applies:
+
+The system generates:
+
+Experience calculation
+
+Skill extraction (explicit + inferred)
+
+Seniority level
+
+Strength/weakness analysis
+
+Match score vs job requirement
+
+Hire probability score
+
+Result:
+
+HR sees ranked candidates instantly.
+
+2. Smart Requirement Matching
+
+Each job role has:
+
+Required tech stack
+
+Experience threshold
+
+Match score threshold
+
+If AI score meets threshold:
+
+Candidate is automatically shortlisted.
+
+No manual filtering required.
+
+3. Automated Scheduling Engine
+
+The system:
+
+Matches candidate availability with interviewer availability
+
+Prevents slot collision
+
+Books interviews automatically
+
+Generates Google Meet links
+
+Sends calendar invites
+
+Scheduling time reduced from hours → seconds.
+
+4. Interview Intelligence
+
+After interview:
+
+Interviewer submits feedback
+
+AI summarizes feedback
+
+AI updates hire probability
+
+HR sees structured recommendation
+
+5. Permanent Talent Database (Key Differentiator)
+
+Every candidate remains in the system.
+
+Even rejected candidates:
+
+Are stored
+
+Can be searched
+
+Can be re-matched to future roles
+
+This builds a:
+
+Company-Owned AI Talent Repository
+
+Over time, hiring becomes faster and more intelligent.
+
+5. Product Positioning
+
+This is positioned as:
+
+AI Hiring Assistant
+
+Intelligent ATS
+
+Automated Interview Coordinator
+
+Talent Intelligence Engine
+
+Not payroll.
+Not leave management.
+Not traditional HR software.
+
+Focused only on intelligent hiring automation.
+
+6. Target Clients
+
+Phase 1 Target Market:
+
+Tech startups (10–200 employees)
+
+Growing IT companies
+
+SaaS companies hiring frequently
+
+Recruitment agencies
+
+Phase 2:
+
+Mid-sized enterprises
+
+Remote-first organizations
+
+7. Unique Selling Points (USP)
+
+AI-first design (not AI as add-on)
+
+Auto shortlisting
+
+Auto scheduling
+
+Collision-proof booking
+
+Talent memory system
+
+Hire probability prediction
+
+Reduced HR workload by 40–60%
+
+8. Product Roadmap
+Phase 1 – MVP (Weeks 1–2)
+
+Focus: Core Hiring Automation
+
+Role-based dashboards (HR / Interviewer / Candidate)
+
+Resume upload & parsing
+
+AI resume analysis
+
+Match scoring system
+
+Requirement auto-assignment
+
+Availability management
+
+Interview scheduling
+
+Google Meet generation
+
+Feedback collection
+
+Talent database storage
+
+Deliverable:
+Working AI Hiring System (Pilot Ready)
+
+Phase 2 – Enhancement (Month 2)
+
+Focus: Intelligence Expansion
+
+AI bias detection flag
+
+Candidate risk analysis (job hopping, skill inflation)
+
+Top 5 AI recommended candidates per role
+
+Advanced search (skill-based filtering)
+
+Hiring funnel analytics
+
+Role-wise hiring conversion metrics
+
+Phase 3 – Growth Layer (Month 3–4)
+
+Focus: Competitive Advantage
+
+Semantic talent search (vector search)
+
+AI-based interview question suggestions
+
+Predictive hiring performance scoring
+
+Multi-company SaaS onboarding
+
+Subscription billing integration
+
+9. Business Model
+Pricing Strategy (Example)
+
+Starter Plan
+
+Up to 5 job roles
+
+200 AI resume scans/month
+
+Growth Plan
+
+Unlimited roles
+
+1000 AI scans
+
+Scheduling automation
+
+Enterprise Plan
+
+Custom AI models
+
+Dedicated support
+
+Advanced analytics
+
+Revenue Streams:
+
+Monthly subscription
+
+AI scan usage-based pricing
+
+Enterprise licensing
+
+10. ROI for Clients
+
+Reduced:
+
+Screening time
+
+Scheduling time
+
+Hiring cycle duration
+
+Manual HR workload
+
+Increased:
+
+Hiring speed
+
+Candidate experience
+
+Data-driven decisions
+
+Long-term hiring intelligence
+
+11. Why This Matters Now
+
+AI adoption in HR is accelerating
+
+Remote hiring increases scheduling complexity
+
+Companies want faster hiring cycles
+
+Talent competition is high
+
+Companies that adopt AI hiring tools early gain operational advantage.
+
+12. Long-Term Vision
+
+Build a system where:
+
+Hiring becomes predictive
+
+Talent database becomes strategic asset
+
+AI continuously improves matching accuracy
+
+Companies hire based on intelligence, not intuition
+
+Goal:
+
+Become the AI Hiring Operating System for modern companies.
+
+13. Closing Pitch Statement
+
+This platform transforms hiring from:
+
+Manual + Reactive + Operational
+
+To:
+
+Automated + Intelligent + Strategic
+
+We are not replacing HR.
+
+We are empowering HR with AI.

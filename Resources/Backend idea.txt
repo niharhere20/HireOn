@@ -1,0 +1,168 @@
+# AI-First HR Startup – Backend Architecture
+
+## 1. Tech Stack
+
+- Runtime: Node.js
+- Framework: Express (faster than Nest for MVP)
+- Language: TypeScript
+- ORM: Prisma
+- Database: PostgreSQL (Supabase Hosted)
+- Auth: Supabase JWT verification
+- AI: OpenAI API
+- Queue: BullMQ (Redis via Upstash)
+- File Parsing: pdf-parse
+- Validation: Zod
+- Calendar Integration: Google Calendar API
+- Email: Resend / SendGrid
+
+---
+
+## 2. Folder Structure
+
+src/
+ ├── controllers/
+ ├── services/
+ ├── routes/
+ ├── middlewares/
+ ├── jobs/
+ ├── utils/
+ ├── prisma/
+ └── config/
+
+---
+
+## 3. Core Modules
+
+### Auth Middleware
+- JWT validation
+- Role enforcement
+- Request context injection
+
+---
+
+### Candidate Module
+
+Responsibilities:
+- Resume upload
+- Resume parsing
+- Store extracted text
+- Manage availability
+
+---
+
+### AI Module
+
+Responsibilities:
+- Resume analysis
+- Skill extraction
+- Match scoring
+- Hire probability
+- Feedback summarization
+
+Async Flow:
+1. HR clicks analyze
+2. Job added to BullMQ
+3. Worker processes resume
+4. Result saved in AIProfile table
+
+---
+
+### Requirement Module
+
+- Create tech requirements
+- Define experience threshold
+- Define match score threshold
+- Auto-assign candidate on qualification
+
+---
+
+### Scheduling Module
+
+Algorithm:
+1. Fetch candidate availability
+2. Fetch interviewer availability
+3. Find overlapping slots
+4. Use DB transaction
+5. Create interview record
+6. Mark slot as booked
+
+DB Constraints:
+- Unique (interviewerId + startTime)
+- Unique (candidateId + startTime)
+
+---
+
+### Interview Module
+
+- Create interview
+- Store meet link
+- Capture feedback
+- Trigger AI feedback summarization
+
+---
+
+## 4. AI Prompt Engineering
+
+Resume Analysis Prompt:
+
+System:
+"You are an AI hiring intelligence engine."
+
+User:
+- Resume text
+- Required tech stack
+- Required experience
+
+Output JSON:
+{
+  experience_years: number,
+  seniority: string,
+  extracted_skills: [],
+  inferred_skills: [],
+  strengths: string,
+  weaknesses: string,
+  match_score: number,
+  hire_probability: number
+}
+
+---
+
+## 5. Google Calendar Integration
+
+- Service account OR OAuth
+- Create event
+- Add attendees
+- Save hangoutLink
+- Return meet link
+
+---
+
+## 6. Background Jobs
+
+jobs/
+ ├── resumeAnalysis.job.ts
+ ├── feedbackSummary.job.ts
+ └── bulkScheduling.job.ts
+
+---
+
+## 7. Security
+
+- Rate limit AI endpoints
+- Sanitize resume text
+- Validate JSON from AI
+- Log all HR actions
+- Protect scheduling with transactions
+
+---
+
+## 8. Deployment
+
+- Railway / Render / Fly.io
+- Environment Variables:
+  - DATABASE_URL
+  - OPENAI_API_KEY
+  - REDIS_URL
+  - GOOGLE_CLIENT_ID
+  - GOOGLE_CLIENT_SECRET
+  - SUPABASE_JWT_SECRET

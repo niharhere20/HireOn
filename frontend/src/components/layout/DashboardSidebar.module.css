@@ -1,0 +1,192 @@
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 100vh;
+    z-index: 200;
+    background: var(--sidebar-bg);
+    backdrop-filter: blur(24px) saturate(180%);
+    border-right: 1px solid var(--sidebar-border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    transition: background 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    overflow-y: auto;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    padding: 0 8px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.logoIcon {
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(108, 71, 255, .35);
+    flex-shrink: 0;
+}
+
+.logoText {
+    font-size: 20px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.roleTag {
+    margin: 0 8px 24px;
+    padding: 6px 12px;
+    background: var(--sb-active);
+    border: 1px solid rgba(108, 71, 255, .14);
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--violet);
+    text-align: center;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+}
+
+.nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-mid);
+    transition: all .2s;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.navItem:hover {
+    background: var(--sb-hover);
+    color: var(--text);
+    border-color: rgba(108, 71, 255, .09);
+}
+
+.active {
+    background: linear-gradient(135deg, var(--sb-active), rgba(255, 107, 198, .05)) !important;
+    color: var(--violet) !important;
+    font-weight: 600;
+    border-color: rgba(108, 71, 255, .14) !important;
+}
+
+.navIcon {
+    font-size: 17px;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.bottom {
+    border-top: 1px solid var(--sidebar-border);
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+/* ─── HAMBURGER (mobile only) ────────────────── */
+.hamburger {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 300;
+    width: 40px;
+    height: 40px;
+    background: var(--card-bg);
+    border: 1.5px solid var(--sidebar-border);
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+    transition: border-color .2s, box-shadow .2s;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0;
+}
+
+.hamburger:hover {
+    border-color: var(--violet);
+    box-shadow: 0 4px 16px rgba(108, 71, 255, .2);
+}
+
+.hamLine {
+    width: 18px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    display: block;
+    transition: all .2s;
+}
+
+/* ─── OVERLAY (mobile only) ──────────────────── */
+.overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: rgba(0, 0, 0, .5);
+    backdrop-filter: blur(2px);
+    animation: fadeIn .2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ─── RESPONSIVE ─────────────────────────────── */
+@media (max-width: 900px) {
+    .sidebar {
+        transform: translateX(-100%);
+        box-shadow: none;
+    }
+
+    .sidebarOpen {
+        transform: translateX(0);
+        box-shadow: 4px 0 40px rgba(0, 0, 0, .25);
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .overlay {
+        display: block;
+    }
+}

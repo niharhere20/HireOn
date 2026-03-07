@@ -1,0 +1,260 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.pageTitle {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: var(--text);
+}
+
+.pageSub {
+    font-size: 14px;
+    color: var(--text-mid);
+    margin-top: 4px;
+}
+
+.headerActions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* KPI Grid */
+.kpiGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 1100px) {
+    .kpiGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+    .kpiGrid { grid-template-columns: 1fr 1fr; gap: 10px; }
+}
+
+/* Mid Section */
+.midGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 900px) {
+    .midGrid { grid-template-columns: 1fr; }
+}
+
+/* Card */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--r-md);
+    padding: 24px;
+    transition: background 0.3s, border-color 0.3s;
+}
+
+.cardHead {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text);
+}
+
+/* Funnel */
+.funnel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.fnRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.fnLbl {
+    font-size: 12px;
+    color: var(--text-mid);
+    width: 80px;
+    text-align: right;
+    flex-shrink: 0;
+    font-weight: 500;
+}
+
+.fnTrack {
+    flex: 1;
+    height: 12px;
+    background: rgba(108, 71, 255, .07);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.fnFill {
+    height: 100%;
+    border-radius: 6px;
+    animation: gw 1.4s ease both;
+}
+
+.fn1 { background: linear-gradient(90deg, var(--violet), var(--violet-mid)); }
+.fn2 { background: linear-gradient(90deg, var(--violet-mid), var(--pink)); }
+.fn3 { background: linear-gradient(90deg, var(--pink), var(--pink-lite)); }
+.fn4 { background: linear-gradient(90deg, var(--teal), var(--teal-lite)); }
+
+.fnNum {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    width: 44px;
+    text-align: right;
+}
+
+/* Activity Feed */
+.actList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.actRow {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 8px;
+    border-radius: 10px;
+    transition: background .2s;
+}
+
+.actRow:hover {
+    background: rgba(108, 71, 255, .04);
+}
+
+.actIcon {
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(108, 71, 255, .07);
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.actInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.actText {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+}
+
+.actTime {
+    font-size: 11px;
+    color: var(--text-lite);
+    margin-top: 2px;
+}
+
+/* Table */
+.tableWrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 560px;
+}
+
+.table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-lite);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--table-border);
+    background: var(--table-head);
+    white-space: nowrap;
+}
+
+.table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--table-border);
+    font-size: 13px;
+    vertical-align: middle;
+    color: var(--text);
+}
+
+.table tr:hover td {
+    background: var(--hover-row);
+}
+
+.cCell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cAv {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.cName {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.cExp {
+    font-size: 11px;
+    color: var(--text-lite);
+}
+
+.roleText {
+    color: var(--text-mid);
+}
+
+.scoreCell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.scoreNum {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+}
+
+.actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}

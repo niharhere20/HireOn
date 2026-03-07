@@ -1,0 +1,129 @@
+# AI-First HR Startup – Frontend Architecture
+
+## 1. Tech Stack
+
+- Framework: Next.js 14 (App Router)
+- Language: TypeScript
+- Styling: TailwindCSS
+- UI Components: Shadcn/UI
+- State Management: Zustand
+- Data Fetching: TanStack Query (React Query)
+- Forms: React Hook Form + Zod
+- Calendar UI: FullCalendar
+- Auth Client: Supabase Auth
+- File Upload: Supabase Storage SDK
+
+---
+
+## 2. Folder Structure
+
+src/
+ ├── app/
+ │    ├── (auth)/
+ │    ├── hr/
+ │    ├── interviewer/
+ │    ├── candidate/
+ │    └── api/
+ ├── components/
+ ├── hooks/
+ ├── services/
+ ├── store/
+ ├── utils/
+ ├── types/
+ └── lib/
+
+---
+
+## 3. Role-Based UI Modules
+
+### HR Dashboard
+- Candidate Table (filters, search, AI score sorting)
+- Resume Preview Modal
+- AI Analyze Button
+- Tech Requirement Manager
+- Bulk Schedule Button
+- Interview Calendar View
+- Analytics Panel
+
+### Interviewer Dashboard
+- Weekly Availability Editor
+- Assigned Interviews List
+- Feedback Submission Form
+- Personal Calendar View
+
+### Candidate Dashboard
+- Resume Upload
+- Availability Slot Selection
+- Application Status Tracker
+- Interview Details Page
+
+---
+
+## 4. Key Components
+
+- CandidateCard.tsx
+- ResumeViewer.tsx
+- AIScoreBadge.tsx
+- AvailabilityPicker.tsx
+- InterviewCalendar.tsx
+- FeedbackForm.tsx
+- RequirementBoard.tsx
+
+---
+
+## 5. State Strategy
+
+Global State (Zustand):
+- Auth user
+- Role
+- Selected requirement
+- Scheduling state
+
+Server State (React Query):
+- Candidates
+- AI results
+- Interviews
+- Requirements
+
+---
+
+## 6. API Layer Structure
+
+services/
+ ├── auth.service.ts
+ ├── candidate.service.ts
+ ├── ai.service.ts
+ ├── interview.service.ts
+ ├── scheduling.service.ts
+ └── requirement.service.ts
+
+All calls via:
+- REST (preferred for speed)
+- Axios client wrapper
+
+---
+
+## 7. Security
+
+- Route protection via middleware
+- Role-based layout guards
+- Resume download via signed URLs only
+
+---
+
+## 8. UX Strategy (AI-First Feel)
+
+- Show AI Confidence Score prominently
+- Auto-ranking view for HR
+- Smart suggestions:
+  "Top 5 candidates for React role"
+
+---
+
+## 9. Deployment
+
+- Vercel
+- Environment variables:
+  - NEXT_PUBLIC_SUPABASE_URL
+  - NEXT_PUBLIC_SUPABASE_ANON_KEY
+  - API_BASE_URL

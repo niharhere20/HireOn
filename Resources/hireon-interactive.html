@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aura — Intelligent Hiring Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,300;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─────────────────────────────── */
+:root {
+  --bg:          #f0eeff;
+  --violet:      #6c47ff;
+  --violet-mid:  #8b6bff;
+  --violet-lite: #a98bff;
+  --pink:        #ff6bc6;
+  --pink-lite:   #ff9dd7;
+  --teal:        #00d4c8;
+  --teal-lite:   #5eead4;
+  --amber:       #fbbf24;
+  --text:        #1a1040;
+  --text-mid:    #5a4e7a;
+  --text-lite:   #9689bb;
+  --glass:       rgba(255,255,255,0.72);
+  --glass-b:     rgba(255,255,255,0.95);
+  --glass-bs:    rgba(255,255,255,0.55);
+  --shadow:      0 8px 40px rgba(108,71,255,0.10);
+  --shadow-h:    0 20px 60px rgba(108,71,255,0.18);
+  --r-lg: 24px; --r-md: 16px; --r-sm: 10px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ─── BLOBS ─────────────────────────────── */
+.blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(90px)}
+.b1{width:700px;height:700px;background:radial-gradient(circle,rgba(139,107,255,.5),rgba(108,71,255,.2));top:-250px;right:-200px;animation:da 12s ease-in-out infinite alternate}
+.b2{width:600px;height:600px;background:radial-gradient(circle,rgba(255,107,198,.4),rgba(255,157,215,.1));bottom:-150px;left:-200px;animation:db 15s ease-in-out infinite alternate}
+.b3{width:450px;height:450px;background:radial-gradient(circle,rgba(0,212,200,.35),rgba(94,234,212,.1));top:35%;left:25%;animation:dc 10s ease-in-out infinite alternate}
+.b4{width:280px;height:280px;background:radial-gradient(circle,rgba(251,191,36,.18),transparent);top:60%;right:15%;animation:da 18s ease-in-out infinite alternate-reverse}
+@keyframes da{from{transform:translate(0,0) scale(1)}to{transform:translate(40px,-60px) scale(1.1)}}
+@keyframes db{from{transform:translate(0,0) scale(1)}to{transform:translate(-30px,50px) scale(1.05)}}
+@keyframes dc{from{transform:translate(0,0)}to{transform:translate(60px,-40px)}}
+
+/* ─── NAV ─────────────────────────────── */
+nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);width:calc(100% - 64px);max-width:1200px;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(255,255,255,.78);backdrop-filter:blur(24px) saturate(180%);border:1px solid var(--glass-b);border-radius:20px;box-shadow:var(--shadow),0 1px 0 rgba(255,255,255,.8) inset}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--violet),var(--pink));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(108,71,255,.35)}
+.nav-name{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--violet),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+nav ul{list-style:none;display:flex;gap:4px}
+nav ul a{display:block;padding:8px 16px;text-decoration:none;font-size:14px;font-weight:500;color:var(--text-mid);border-radius:10px;transition:all .2s}
+nav ul a:hover{background:rgba(108,71,255,.07);color:var(--violet)}
+.nav-acts{display:flex;gap:8px}
+.btn-ghost-nav{padding:9px 18px;background:transparent;border:1px solid rgba(108,71,255,.25);border-radius:10px;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:var(--violet);cursor:pointer;transition:all .2s}
+.btn-ghost-nav:hover{background:rgba(108,71,255,.06)}
+.btn-pri-nav{padding:9px 22px;background:linear-gradient(135deg,var(--violet),var(--violet-mid));border:none;border-radius:10px;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:#fff;cursor:pointer;box-shadow:0 4px 16px rgba(108,71,255,.35);transition:all .2s}
+.btn-pri-nav:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(108,71,255,.45)}
+
+/* ─── HERO ─────────────────────────────── */
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:150px 48px 100px}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;background:var(--glass);border:1px solid var(--glass-b);border-radius:50px;font-size:12px;font-weight:600;color:var(--violet);margin-bottom:32px;backdrop-filter:blur(12px);box-shadow:var(--shadow);animation:fu .6s ease both}
+.badge-dot{width:8px;height:8px;background:linear-gradient(135deg,var(--violet),var(--pink));border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(108,71,255,.2)}50%{box-shadow:0 0 0 6px rgba(108,71,255,.08)}}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(52px,7.5vw,104px);font-weight:900;line-height:1.0;margin-bottom:28px;max-width:1000px;letter-spacing:-2px;animation:fu .6s .1s ease both}
+.grad{background:linear-gradient(135deg,var(--violet) 0%,var(--pink) 50%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:18px;color:var(--text-mid);line-height:1.75;max-width:580px;margin-bottom:48px;animation:fu .6s .2s ease both}
+.hero-ctas{display:flex;gap:14px;justify-content:center;margin-bottom:16px;animation:fu .6s .3s ease both}
+.btn-pri{padding:16px 40px;background:linear-gradient(135deg,var(--violet),var(--violet-mid));color:#fff;border:none;border-radius:var(--r-sm);font-family:'Sora',sans-serif;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 8px 28px rgba(108,71,255,.38);transition:all .3s}
+.btn-pri:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(108,71,255,.45)}
+.btn-gl{padding:16px 40px;background:var(--glass);color:var(--text);border:1px solid var(--glass-bs);border-radius:var(--r-sm);font-family:'Sora',sans-serif;font-size:15px;font-weight:600;cursor:pointer;backdrop-filter:blur(12px);transition:all .3s}
+.btn-gl:hover{background:#fff;transform:translateY(-2px);box-shadow:var(--shadow)}
+.trust{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text-lite);margin-bottom:72px;animation:fu .6s .4s ease both}
+.avatars{display:flex}
+.avatars span{width:30px;height:30px;border-radius:50%;border:2px solid #fff;margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 8px rgba(108,71,255,.15)}
+.avatars span:first-child{margin-left:0}
+.av-a{background:linear-gradient(135deg,#a78bfa,#6c47ff)}
+.av-b{background:linear-gradient(135deg,#f9a8d4,#ff6bc6)}
+.av-c{background:linear-gradient(135deg,#5eead4,#00d4c8)}
+.av-d{background:linear-gradient(135deg,#fde68a,#fbbf24)}
+@keyframes fu{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+
+/* ─── INTERACTIVE DASHBOARD ────────────────────── */
+.db-outer{position:relative;width:100%;max-width:1060px;animation:fu .8s .5s ease both}
+.db-glow{position:absolute;inset:-60px;background:radial-gradient(ellipse at 50% 40%,rgba(108,71,255,.18),transparent 65%);pointer-events:none}
+.dashboard{background:rgba(255,255,255,.9);backdrop-filter:blur(24px) saturate(200%);border:1px solid var(--glass-b);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 40px 100px rgba(108,71,255,.14),0 1px 0 rgba(255,255,255,.9) inset;position:relative;z-index:1}
+
+/* Topbar */
+.db-bar{display:flex;align-items:center;gap:8px;padding:13px 20px;background:rgba(248,245,255,.95);border-bottom:1px solid rgba(108,71,255,.07)}
+.dots{display:flex;gap:6px}
+.dot{width:11px;height:11px;border-radius:50%}
+.dr{background:#ff5f57}.dy{background:#febc2e}.dg{background:#28c840}
+.db-tabs{display:flex;gap:2px;margin-left:16px}
+.db-tab{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;color:var(--text-lite);cursor:pointer;transition:all .2s;user-select:none}
+.db-tab.on{background:var(--glass);color:var(--violet);box-shadow:0 2px 8px rgba(108,71,255,.1)}
+.db-url{flex:1;background:rgba(108,71,255,.05);border-radius:8px;padding:6px 14px;font-size:11px;color:var(--text-lite);text-align:center;margin:0 16px}
+.db-search{display:flex;align-items:center;gap:6px;padding:6px 12px;background:#fff;border:1px solid rgba(108,71,255,.1);border-radius:8px;font-size:11px;color:var(--text-lite)}
+
+/* Shell */
+.db-shell{display:grid;grid-template-columns:200px 1fr;min-height:520px}
+
+/* Sidebar */
+.db-side{background:rgba(248,245,255,.8);border-right:1px solid rgba(108,71,255,.07);padding:16px 10px;display:flex;flex-direction:column;gap:2px}
+.side-sec{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-lite);padding:10px 10px 4px}
+.side-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;font-size:13px;font-weight:500;color:var(--text-mid);cursor:pointer;transition:all .2s;user-select:none}
+.side-item:hover{background:rgba(108,71,255,.06);color:var(--violet)}
+.side-item.on{background:rgba(108,71,255,.1);color:var(--violet);font-weight:600}
+.side-icon{width:22px;text-align:center;font-size:15px}
+.side-badge{margin-left:auto;background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px}
+
+/* Content panels — tabs */
+.db-content{padding:24px;overflow:hidden;position:relative}
+.tab-panel{display:none}
+.tab-panel.on{display:block}
+
+/* ── PANEL: OVERVIEW ── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid rgba(108,71,255,.07);border-radius:var(--r-md);padding:18px;transition:all .3s;cursor:default}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.kpi-icon{font-size:20px;margin-bottom:10px}
+.kpi-val{font-size:26px;font-weight:700;color:var(--text);line-height:1}
+.kpi-lbl{font-size:11px;color:var(--text-lite);margin-top:4px;font-weight:500}
+.kpi-delta{font-size:11px;font-weight:600;margin-top:6px}
+.up{color:#10b981}.dn{color:#ef4444}
+
+.mid-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.db-card{background:#fff;border:1px solid rgba(108,71,255,.07);border-radius:var(--r-md);padding:20px}
+.card-head{font-size:13px;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.ctag{font-size:10px;font-weight:600;padding:3px 8px;background:rgba(108,71,255,.08);color:var(--violet);border-radius:20px}
+.ctag.teal{background:rgba(0,212,200,.1);color:var(--teal)}
+.ctag.pink{background:rgba(255,107,198,.1);color:var(--pink)}
+
+/* Funnel bars */
+.funnel{display:flex;flex-direction:column;gap:10px}
+.fn-row{display:flex;align-items:center;gap:10px}
+.fn-lbl{font-size:11px;color:var(--text-mid);width:76px;text-align:right;flex-shrink:0}
+.fn-track{flex:1;height:10px;background:rgba(108,71,255,.06);border-radius:5px;overflow:hidden}
+.fn-fill{height:100%;border-radius:5px;animation:gw 1.4s ease both}
+.fn1{background:linear-gradient(90deg,var(--violet),var(--violet-mid));animation-delay:.1s}
+.fn2{background:linear-gradient(90deg,var(--violet-mid),var(--pink));animation-delay:.3s}
+.fn3{background:linear-gradient(90deg,var(--pink),var(--pink-lite));animation-delay:.5s}
+.fn4{background:linear-gradient(90deg,var(--teal),var(--teal-lite));animation-delay:.7s}
+@keyframes gw{from{width:0%}}
+.fn-num{font-size:11px;font-weight:600;color:var(--text);width:36px;text-align:right}
+
+/* Candidate list */
+.c-list{display:flex;flex-direction:column;gap:8px}
+.c-row{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;cursor:pointer;transition:background .2s}
+.c-row:hover{background:rgba(108,71,255,.04)}
+.c-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ca{background:linear-gradient(135deg,#ddd6fe,#a78bfa)}
+.cb{background:linear-gradient(135deg,#fce7f3,#f9a8d4)}
+.cc{background:linear-gradient(135deg,#d1fae5,#6ee7b7)}
+.cd{background:linear-gradient(135deg,#fef3c7,#fde68a)}
+.c-info{flex:1}
+.c-name{font-size:13px;font-weight:600;color:var(--text)}
+.c-role{font-size:11px;color:var(--text-lite)}
+.c-score{font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px}
+.sc-hi{background:#d1fae5;color:#065f46}
+.sc-md{background:#fef3c7;color:#92400e}
+.sc-lo{background:#fee2e2;color:#991b1b}
+.sc-new{background:rgba(108,71,255,.1);color:var(--violet)}
+
+/* Ring row */
+.rings-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ring-wrap{background:#fff;border:1px solid rgba(108,71,255,.07);border-radius:var(--r-md);padding:16px;text-align:center;transition:all .3s}
+.ring-wrap:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+svg.rsvg{transform:rotate(-90deg)}
+.r-bg{fill:none;stroke:rgba(108,71,255,.07);stroke-width:8}
+.r-fill{fill:none;stroke-width:8;stroke-linecap:round;animation:rd 1.6s ease both}
+@keyframes rd{from{stroke-dashoffset:283}}
+.r-txt{fill:var(--text);font-family:'Sora',sans-serif;font-weight:700;font-size:15px}
+.ring-lbl{font-size:11px;color:var(--text-lite);margin-top:8px;font-weight:500}
+
+/* ── PANEL: CANDIDATES ── */
+.cand-table{width:100%;border-collapse:collapse}
+.cand-table th{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-lite);padding:10px 12px;text-align:left;border-bottom:1px solid rgba(108,71,255,.07)}
+.cand-table td{padding:12px 12px;font-size:13px;border-bottom:1px solid rgba(108,71,255,.04);vertical-align:middle}
+.cand-table tr:hover td{background:rgba(108,71,255,.03);cursor:pointer}
+.cand-table tr:last-child td{border-bottom:none}
+.t-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px}
+.skill-pill{display:inline-block;padding:2px 8px;background:rgba(108,71,255,.08);border-radius:20px;font-size:10px;font-weight:600;color:var(--violet);margin-right:4px;margin-bottom:2px}
+.match-bar-wrap{width:80px;height:6px;background:rgba(108,71,255,.08);border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:6px}
+.match-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--violet),var(--pink))}
+.status-chip{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:5px}
+.st-short{background:#d1fae5;color:#065f46}
+.st-sched{background:#dbeafe;color:#1e40af}
+.st-review{background:#fef3c7;color:#92400e}
+.st-new{background:rgba(108,71,255,.1);color:var(--violet)}
+.st-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.action-btn{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.ab-pri{background:linear-gradient(135deg,var(--violet),var(--violet-mid));color:#fff;box-shadow:0 2px 8px rgba(108,71,255,.25)}
+.ab-sec{background:rgba(108,71,255,.08);color:var(--violet)}
+.ab-pri:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(108,71,255,.35)}
+.ab-sec:hover{background:rgba(108,71,255,.14)}
+
+/* ── PANEL: ANALYTICS ── */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chart-card{background:#fff;border:1px solid rgba(108,71,255,.07);border-radius:var(--r-md);padding:20px}
+.chart-card.full{grid-column:1/-1}
+.mini-bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:10px}
+.mbar-col{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
+.mbar{border-radius:4px 4px 0 0;width:100%;min-height:4px;animation:barUp .8s ease both}
+@keyframes barUp{from{height:0!important}}
+.mbar-v{font-size:10px;font-weight:600;color:var(--text-mid)}
+.mbar-l{font-size:10px;color:var(--text-lite)}
+.sparkline{position:relative;height:80px;margin-top:10px}
+.sparkline svg{width:100%;height:100%}
+.donut-wrap{display:flex;align-items:center;gap:24px}
+.donut-legend{display:flex;flex-direction:column;gap:10px}
+.dl-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-mid)}
+.dl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dl-pct{font-weight:700;color:var(--text);margin-left:auto;padding-left:12px}
+.big-kpi-row{display:flex;gap:16px;margin-bottom:14px}
+.big-kpi{flex:1;background:rgba(108,71,255,.04);border-radius:var(--r-sm);padding:14px 16px;text-align:center}
+.bk-num{font-family:'Fraunces',serif;font-size:36px;font-weight:900;background:linear-gradient(135deg,var(--violet),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.bk-lbl{font-size:11px;color:var(--text-lite);margin-top:4px;font-weight:500}
+
+/* ── PANEL: SCHEDULE ── */
+.sched-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:14px}
+.cal-card{background:#fff;border:1px solid rgba(108,71,255,.07);border-radius:var(--r-md);padding:20px}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cal-month{font-size:14px;font-weight:700;color:var(--text)}
+.cal-nav{width:28px;height:28px;border-radius:8px;background:rgba(108,71,255,.07);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--violet);transition:background .2s}
+.cal-nav:hover{background:rgba(108,71,255,.14)}
+.cal-days-header{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:6px}
+.cal-dh{font-size:10px;font-weight:600;color:var(--text-lite);text-align:center;padding:4px 0}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-day{font-size:12px;font-weight:500;color:var(--text-mid);text-align:center;padding:7px 4px;border-radius:8px;cursor:pointer;transition:all .2s;position:relative}
+.cal-day:hover{background:rgba(108,71,255,.07);color:var(--violet)}
+.cal-day.today{background:linear-gradient(135deg,var(--violet),var(--violet-mid));color:#fff;box-shadow:0 2px 8px rgba(108,71,255,.3)}
+.cal-day.has-event::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--pink)}
+.cal-day.other{color:var(--text-lite)}
+.cal-day.selected{background:rgba(108,71,255,.1);color:var(--violet);font-weight:600}
+.upcoming-card{background:#fff;border:1px solid rgba(108,71,255,.07);border-radius:var(--r-md);padding:20px}
+.interview-slot{display:flex;gap:14px;padding:12px;border-radius:var(--r-sm);transition:background .2s;cursor:pointer;margin-bottom:8px;border:1px solid transparent}
+.interview-slot:hover{background:rgba(108,71,255,.04);border-color:rgba(108,71,255,.08)}
+.slot-time{width:60px;text-align:center;flex-shrink:0}
+.slot-hr{font-size:16px;font-weight:700;color:var(--violet);line-height:1}
+.slot-ampm{font-size:10px;color:var(--text-lite)}
+.slot-divider{width:1px;background:rgba(108,71,255,.1);margin:0 4px}
+.slot-info{flex:1}
+.slot-name{font-size:13px;font-weight:600;color:var(--text)}
+.slot-role{font-size:11px;color:var(--text-lite);margin-top:2px}
+.slot-tags{display:flex;gap:6px;margin-top:6px}
+.slot-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:rgba(108,71,255,.07);color:var(--violet)}
+.slot-action{width:32px;height:32px;border-radius:8px;background:rgba(108,71,255,.08);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:all .2s;border:none;align-self:center;flex-shrink:0}
+.slot-action:hover{background:rgba(108,71,255,.14)}
+
+/* ── PANEL: AI INSIGHTS ── */
+.insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.insight-card{background:#fff;border:1px solid rgba(108,71,255,.07);border-radius:var(--r-md);padding:22px;transition:all .3s}
+.insight-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.insight-card.full{grid-column:1/-1}
+.ic-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px}
+.ic1{background:linear-gradient(135deg,rgba(108,71,255,.12),rgba(139,107,255,.06))}
+.ic2{background:linear-gradient(135deg,rgba(255,107,198,.12),rgba(255,157,215,.06))}
+.ic3{background:linear-gradient(135deg,rgba(0,212,200,.12),rgba(94,234,212,.06))}
+.ic4{background:linear-gradient(135deg,rgba(251,191,36,.12),rgba(253,230,138,.06))}
+.ic-title{font-size:14px;font-weight:700;margin-bottom:8px}
+.ic-desc{font-size:13px;color:var(--text-mid);line-height:1.6}
+.skill-heatmap{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:12px}
+.sh-cell{height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;transition:all .2s;cursor:default}
+.sh-cell:hover{transform:scale(1.05)}
+.prob-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.prob-name{font-size:13px;font-weight:500;color:var(--text);width:100px}
+.prob-track{flex:1;height:8px;background:rgba(108,71,255,.06);border-radius:4px;overflow:hidden}
+.prob-fill{height:100%;border-radius:4px;animation:gw 1.4s ease both}
+.p1{background:linear-gradient(90deg,var(--violet),var(--violet-mid));animation-delay:.1s}
+.p2{background:linear-gradient(90deg,var(--violet-mid),var(--pink));animation-delay:.2s}
+.p3{background:linear-gradient(90deg,var(--pink),var(--pink-lite));animation-delay:.3s}
+.p4{background:linear-gradient(90deg,var(--teal),var(--teal-lite));animation-delay:.4s}
+.p5{background:linear-gradient(90deg,#fbbf24,#fde68a);animation-delay:.5s}
+.prob-val{font-size:12px;font-weight:700;color:var(--text);width:36px;text-align:right}
+
+/* ─── STATS ROW ─────────────────────────────── */
+.stats-sec{position:relative;z-index:1;padding:80px}
+.stats-inner{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.stat-card{background:var(--glass);border:1px solid var(--glass-b);border-radius:var(--r-lg);padding:40px 32px;backdrop-filter:blur(20px);text-align:center;box-shadow:var(--shadow);transition:all .3s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--violet),var(--pink));transform:scaleX(0);transform-origin:left;transition:transform .4s}
+.stat-card:hover::before{transform:scaleX(1)}
+.stat-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-h);background:#fff}
+.stat-num{font-family:'Fraunces',serif;font-size:60px;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--violet),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;margin-bottom:12px}
+.stat-lbl{font-size:14px;color:var(--text-mid);font-weight:500;line-height:1.5}
+
+/* ─── HOW IT WORKS ─────────────────────────────── */
+.how-sec{position:relative;z-index:1;padding:100px 80px}
+.sec-tag{display:block;text-align:center;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--violet);margin-bottom:16px}
+.sec-title{text-align:center;font-family:'Fraunces',serif;font-size:clamp(36px,4.5vw,60px);font-weight:900;line-height:1.1;margin-bottom:20px;letter-spacing:-1px}
+.sec-sub{text-align:center;font-size:17px;color:var(--text-mid);max-width:560px;margin:0 auto 80px;line-height:1.7}
+
+/* Step-by-step interactive flow */
+.flow-container{max-width:1000px;margin:0 auto}
+.flow-steps{display:flex;flex-direction:column;gap:0}
+.flow-step{display:grid;grid-template-columns:80px 1fr;gap:0;position:relative;cursor:pointer}
+.flow-step:not(:last-child) .step-line{display:block}
+
+/* Left column: number + line */
+.step-left{display:flex;flex-direction:column;align-items:center;padding-top:4px;position:relative}
+.step-num-wrap{width:52px;height:52px;border-radius:50%;border:2px solid rgba(108,71,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--text-lite);transition:all .4s;background:#fff;box-shadow:var(--shadow);flex-shrink:0;z-index:1;position:relative}
+.flow-step.active .step-num-wrap{background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border-color:transparent;box-shadow:0 8px 24px rgba(108,71,255,.35);transform:scale(1.1)}
+.step-line{width:2px;flex:1;background:linear-gradient(180deg,rgba(108,71,255,.15),rgba(108,71,255,.05));margin:6px 0;min-height:40px}
+.flow-step.active .step-line{background:linear-gradient(180deg,rgba(108,71,255,.4),rgba(108,71,255,.1))}
+
+/* Right column: card */
+.step-right{padding:0 0 32px 24px}
+.step-card{background:var(--glass);border:1px solid var(--glass-bs);border-radius:var(--r-lg);padding:28px 32px;backdrop-filter:blur(16px);transition:all .4s;position:relative;overflow:hidden}
+.flow-step.active .step-card{background:#fff;border-color:rgba(108,71,255,.15);box-shadow:0 16px 48px rgba(108,71,255,.12)}
+.step-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--violet),var(--pink));transform:scaleX(0);transform-origin:left;transition:transform .5s}
+.flow-step.active .step-card::before{transform:scaleX(1)}
+.step-phase{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--violet);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.step-phase-dot{width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--pink))}
+.step-title{font-size:20px;font-weight:700;margin-bottom:10px;color:var(--text)}
+.step-summary{font-size:14px;color:var(--text-mid);line-height:1.65}
+
+/* Expandable detail */
+.step-detail{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(0.16,1,0.3,1),opacity .3s}
+.step-detail.open{max-height:600px}
+.step-detail-inner{padding-top:20px}
+.step-detail-desc{font-size:14px;color:var(--text-mid);line-height:1.75;margin-bottom:20px}
+
+/* Mini process inside step */
+.sub-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.sub-step{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(108,71,255,.04);border-radius:var(--r-sm);border:1px solid rgba(108,71,255,.07)}
+.sub-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.sub-text-wrap{flex:1}
+.sub-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.sub-desc{font-size:12px;color:var(--text-mid);line-height:1.55}
+.sub-badge{flex-shrink:0;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;align-self:flex-start;margin-top:2px}
+.badge-violet{background:rgba(108,71,255,.1);color:var(--violet)}
+.badge-teal{background:rgba(0,212,200,.1);color:var(--teal)}
+.badge-pink{background:rgba(255,107,198,.1);color:var(--pink)}
+.badge-amber{background:rgba(251,191,36,.1);color:#d97706}
+
+/* Tags row */
+.step-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.step-tag{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600}
+.tag-v{background:rgba(108,71,255,.09);color:var(--violet)}
+.tag-t{background:rgba(0,212,200,.1);color:var(--teal)}
+.tag-p{background:rgba(255,107,198,.1);color:var(--pink)}
+
+/* Time indicator */
+.step-time{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:linear-gradient(135deg,rgba(108,71,255,.08),rgba(255,107,198,.06));border-radius:20px;font-size:12px;font-weight:600;color:var(--text-mid)}
+.step-time-icon{font-size:14px}
+
+/* Mini live demo inside step */
+.live-demo{background:rgba(108,71,255,.04);border:1px solid rgba(108,71,255,.1);border-radius:var(--r-md);padding:18px;margin-top:4px}
+.demo-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--violet);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.demo-label::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 1.5s infinite}
+.demo-content{font-size:13px;color:var(--text-mid);line-height:1.7}
+
+/* ─── CTA ─────────────────────────────── */
+.cta-sec{position:relative;z-index:1;margin:0 80px 80px}
+.cta-inner{border-radius:32px;padding:100px 80px;text-align:center;background:linear-gradient(135deg,var(--violet) 0%,#9b6dff 40%,var(--pink) 100%);overflow:hidden;position:relative}
+.cta-inner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% -10%,rgba(255,255,255,.2),transparent 60%)}
+.cta-badge-w{display:inline-flex;align-items:center;gap:8px;padding:7px 18px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:50px;font-size:12px;font-weight:600;color:#fff;margin-bottom:28px;position:relative}
+.cta-inner h2{font-family:'Fraunces',serif;font-size:clamp(40px,5vw,72px);font-weight:900;color:#fff;line-height:1.05;margin-bottom:20px;position:relative;letter-spacing:-1.5px}
+.cta-inner p{font-size:17px;color:rgba(255,255,255,.85);margin-bottom:48px;max-width:480px;margin-left:auto;margin-right:auto;position:relative;line-height:1.65}
+.cta-btns{display:flex;gap:14px;justify-content:center;position:relative}
+.btn-w{padding:16px 48px;background:#fff;color:var(--violet);border:none;border-radius:var(--r-sm);font-family:'Sora',sans-serif;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 8px 32px rgba(0,0,0,.2);transition:all .3s}
+.btn-w:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,0,0,.25)}
+.btn-gw{padding:16px 40px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:var(--r-sm);font-family:'Sora',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:all .3s}
+.btn-gw:hover{background:rgba(255,255,255,.25);transform:translateY(-2px)}
+
+/* ─── FOOTER ─────────────────────────────── */
+footer{position:relative;z-index:1;padding:60px 80px 40px;border-top:1px solid rgba(108,71,255,.1)}
+.foot-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;margin-bottom:48px}
+.foot-brand p{font-size:14px;color:var(--text-mid);line-height:1.7;max-width:240px;margin-top:14px}
+.foot-social{display:flex;gap:8px;margin-top:18px}
+.soc{width:36px;height:36px;border-radius:10px;background:rgba(108,71,255,.08);border:none;cursor:pointer;font-size:15px;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.soc:hover{background:rgba(108,71,255,.16);transform:translateY(-2px)}
+.foot-col h4{font-size:14px;font-weight:700;margin-bottom:16px}
+.foot-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.foot-col ul li a{text-decoration:none;font-size:14px;color:var(--text-mid);transition:color .2s}
+.foot-col ul li a:hover{color:var(--violet)}
+.foot-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:28px;border-top:1px solid rgba(108,71,255,.08)}
+.foot-copy{font-size:13px;color:var(--text-lite)}
+.foot-badges{display:flex;gap:10px}
+.fbadge{padding:4px 12px;background:rgba(108,71,255,.07);border-radius:20px;font-size:11px;font-weight:600;color:var(--text-mid)}
+</style>
+</head>
+<body>
+
+<div class="blobs">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="blob b3"></div><div class="blob b4"></div>
+</div>
+
+<!-- ══ NAV ══════════════════════════════════ -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-icon">✦</div>
+    <span class="nav-name">Aura</span>
+  </a>
+  <ul>
+    <li><a href="#howitworks">How it Works</a></li>
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#">Features</a></li>
+    <li><a href="#">Pricing</a></li>
+  </ul>
+  <div class="nav-acts">
+    <button class="btn-ghost-nav">Log in</button>
+    <button class="btn-pri-nav">Start Free →</button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════ -->
+<section class="hero" id="dashboard">
+  <div class="badge"><span class="badge-dot"></span>Trusted by 500+ companies worldwide</div>
+  <h1>Hire brilliantly.<br><span class="grad">Powered by AI.</span></h1>
+  <p class="hero-sub">From first application to offer letter — Aura automates your entire recruitment pipeline. 87% match accuracy. 10-second analysis. Zero scheduling stress.</p>
+  <div class="hero-ctas">
+    <button class="btn-pri">Start Free Trial</button>
+    <button class="btn-gl">▶ Watch Demo</button>
+  </div>
+  <div class="trust">
+    <div class="avatars">
+      <span class="av-a">👩</span><span class="av-b">👨</span>
+      <span class="av-c">👩‍💼</span><span class="av-d">🧑‍💻</span>
+    </div>
+    <span>Join 2,400+ HR professionals already using Aura</span>
+  </div>
+
+  <!-- ══ INTERACTIVE DASHBOARD ══ -->
+  <div class="db-outer">
+    <div class="db-glow"></div>
+    <div class="dashboard">
+      <!-- Top bar -->
+      <div class="db-bar">
+        <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+        <div class="db-tabs">
+          <div class="db-tab on" onclick="switchTab('overview',this)">Overview</div>
+          <div class="db-tab" onclick="switchTab('candidates',this)">Candidates</div>
+          <div class="db-tab" onclick="switchTab('analytics',this)">Analytics</div>
+          <div class="db-tab" onclick="switchTab('schedule',this)">Schedule</div>
+          <div class="db-tab" onclick="switchTab('insights',this)">AI Insights</div>
+        </div>
+        <div class="db-url">app.aura.ai/dashboard</div>
+        <div class="db-search">🔍 Search...</div>
+      </div>
+
+      <div class="db-shell">
+        <!-- Sidebar -->
+        <div class="db-side">
+          <div class="side-sec">Main</div>
+          <div class="side-item on" onclick="switchTab('overview',null,this)"><span class="side-icon">🏠</span>Dashboard</div>
+          <div class="side-item" onclick="switchTab('candidates',null,this)"><span class="side-icon">👥</span>Candidates<span class="side-badge">342</span></div>
+          <div class="side-item"><span class="side-icon">📋</span>Job Roles</div>
+          <div class="side-item" onclick="switchTab('schedule',null,this)"><span class="side-icon">📅</span>Interviews<span class="side-badge">8</span></div>
+          <div class="side-sec">Intelligence</div>
+          <div class="side-item" onclick="switchTab('analytics',null,this)"><span class="side-icon">📊</span>Analytics</div>
+          <div class="side-item" onclick="switchTab('insights',null,this)"><span class="side-icon">🧠</span>AI Insights</div>
+          <div class="side-item"><span class="side-icon">💾</span>Talent DB</div>
+          <div class="side-sec">Account</div>
+          <div class="side-item"><span class="side-icon">⚙️</span>Settings</div>
+          <div class="side-item"><span class="side-icon">👤</span>Team</div>
+        </div>
+
+        <!-- Content -->
+        <div class="db-content">
+
+          <!-- ── OVERVIEW ── -->
+          <div class="tab-panel on" id="panel-overview">
+            <div class="kpi-row">
+              <div class="kpi"><div class="kpi-icon">📥</div><div class="kpi-val">1,247</div><div class="kpi-lbl">Resumes Processed</div><div class="kpi-delta up">↑ 18% this month</div></div>
+              <div class="kpi"><div class="kpi-icon">✅</div><div class="kpi-val">342</div><div class="kpi-lbl">Auto-Shortlisted</div><div class="kpi-delta up">↑ 12% this month</div></div>
+              <div class="kpi"><div class="kpi-icon">📅</div><div class="kpi-val">89</div><div class="kpi-lbl">Interviews Booked</div><div class="kpi-delta up">↑ 7% this month</div></div>
+              <div class="kpi"><div class="kpi-icon">🎉</div><div class="kpi-val">24</div><div class="kpi-lbl">Hires Made</div><div class="kpi-delta dn">↓ 2 vs last month</div></div>
+            </div>
+            <div class="mid-row">
+              <div class="db-card">
+                <div class="card-head">Hiring Funnel <span class="ctag">This Month</span></div>
+                <div class="funnel">
+                  <div class="fn-row"><span class="fn-lbl">Applied</span><div class="fn-track"><div class="fn-fill fn1" style="width:100%"></div></div><span class="fn-num">1,247</span></div>
+                  <div class="fn-row"><span class="fn-lbl">Shortlisted</span><div class="fn-track"><div class="fn-fill fn2" style="width:27%"></div></div><span class="fn-num">342</span></div>
+                  <div class="fn-row"><span class="fn-lbl">Interviewed</span><div class="fn-track"><div class="fn-fill fn3" style="width:7%"></div></div><span class="fn-num">89</span></div>
+                  <div class="fn-row"><span class="fn-lbl">Hired</span><div class="fn-track"><div class="fn-fill fn4" style="width:2%"></div></div><span class="fn-num">24</span></div>
+                </div>
+              </div>
+              <div class="db-card">
+                <div class="card-head">Recent Candidates <span class="ctag teal">Live</span></div>
+                <div class="c-list">
+                  <div class="c-row"><div class="c-av ca">👩‍💻</div><div class="c-info"><div class="c-name">Sarah Chen</div><div class="c-role">Senior React Dev · 6.5y</div></div><span class="c-score sc-hi">87%</span></div>
+                  <div class="c-row"><div class="c-av cb">👨‍💼</div><div class="c-info"><div class="c-name">Marcus Reid</div><div class="c-role">React Dev · 5.2y</div></div><span class="c-score sc-hi">81%</span></div>
+                  <div class="c-row"><div class="c-av cc">🧑‍💻</div><div class="c-info"><div class="c-name">Priya Nair</div><div class="c-role">Frontend Eng · 4y</div></div><span class="c-score sc-md">71%</span></div>
+                  <div class="c-row"><div class="c-av cd">👩‍🎨</div><div class="c-info"><div class="c-name">Lena Schwartz</div><div class="c-role">UI Engineer · 3.5y</div></div><span class="c-score sc-new">New</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="rings-row">
+              <div class="ring-wrap">
+                <svg class="rsvg" width="72" height="72" viewBox="0 0 100 100">
+                  <circle class="r-bg" cx="50" cy="50" r="42"/>
+                  <circle class="r-fill" cx="50" cy="50" r="42" stroke="url(#rg1)" stroke-dasharray="263.9" stroke-dashoffset="34"/>
+                  <defs><linearGradient id="rg1"><stop offset="0%" stop-color="#6c47ff"/><stop offset="100%" stop-color="#8b6bff"/></linearGradient></defs>
+                  <text class="r-txt" x="50" y="56" text-anchor="middle" transform="rotate(90 50 50)">87%</text>
+                </svg>
+                <div class="ring-lbl">Match Accuracy</div>
+              </div>
+              <div class="ring-wrap">
+                <svg class="rsvg" width="72" height="72" viewBox="0 0 100 100">
+                  <circle class="r-bg" cx="50" cy="50" r="42"/>
+                  <circle class="r-fill" cx="50" cy="50" r="42" stroke="url(#rg2)" stroke-dasharray="263.9" stroke-dashoffset="47" style="animation-delay:.3s"/>
+                  <defs><linearGradient id="rg2"><stop offset="0%" stop-color="#ff6bc6"/><stop offset="100%" stop-color="#ff9dd7"/></linearGradient></defs>
+                  <text class="r-txt" x="50" y="56" text-anchor="middle" transform="rotate(90 50 50)">82%</text>
+                </svg>
+                <div class="ring-lbl">Hire Probability</div>
+              </div>
+              <div class="ring-wrap">
+                <svg class="rsvg" width="72" height="72" viewBox="0 0 100 100">
+                  <circle class="r-bg" cx="50" cy="50" r="42"/>
+                  <circle class="r-fill" cx="50" cy="50" r="42" stroke="url(#rg3)" stroke-dasharray="263.9" stroke-dashoffset="26" style="animation-delay:.6s"/>
+                  <defs><linearGradient id="rg3"><stop offset="0%" stop-color="#00d4c8"/><stop offset="100%" stop-color="#5eead4"/></linearGradient></defs>
+                  <text class="r-txt" x="50" y="56" text-anchor="middle" transform="rotate(90 50 50)">90%</text>
+                </svg>
+                <div class="ring-lbl">Scheduling Rate</div>
+              </div>
+              <div class="ring-wrap">
+                <svg class="rsvg" width="72" height="72" viewBox="0 0 100 100">
+                  <circle class="r-bg" cx="50" cy="50" r="42"/>
+                  <circle class="r-fill" cx="50" cy="50" r="42" stroke="url(#rg4)" stroke-dasharray="263.9" stroke-dashoffset="158" style="animation-delay:.9s"/>
+                  <defs><linearGradient id="rg4"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#fde68a"/></linearGradient></defs>
+                  <text class="r-txt" x="50" y="56" text-anchor="middle" transform="rotate(90 50 50)">40%</text>
+                </svg>
+                <div class="ring-lbl">Offer Rate</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── CANDIDATES ── -->
+          <div class="tab-panel" id="panel-candidates">
+            <div class="card-head" style="margin-bottom:16px">All Candidates <span class="ctag">342 total</span></div>
+            <table class="cand-table">
+              <thead>
+                <tr><th>Candidate</th><th>Role Applied</th><th>Skills</th><th>Match</th><th>Status</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:10px"><div class="t-av ca">👩‍💻</div><div><div style="font-weight:600;font-size:13px">Sarah Chen</div><div style="font-size:11px;color:var(--text-lite)">6.5y exp</div></div></div></td>
+                  <td style="font-size:13px">Senior React Dev</td>
+                  <td><span class="skill-pill">React</span><span class="skill-pill">TS</span><span class="skill-pill">Node</span></td>
+                  <td><div class="match-bar-wrap"><div class="match-bar-fill" style="width:87%"></div></div><span style="font-size:12px;font-weight:700">87%</span></td>
+                  <td><span class="status-chip st-short"><span class="st-dot"></span>Shortlisted</span></td>
+                  <td><button class="action-btn ab-pri">Schedule</button></td>
+                </tr>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:10px"><div class="t-av cb">👨‍💼</div><div><div style="font-weight:600;font-size:13px">Marcus Reid</div><div style="font-size:11px;color:var(--text-lite)">5.2y exp</div></div></div></td>
+                  <td style="font-size:13px">React Developer</td>
+                  <td><span class="skill-pill">React</span><span class="skill-pill">Redux</span><span class="skill-pill">JS</span></td>
+                  <td><div class="match-bar-wrap"><div class="match-bar-fill" style="width:81%"></div></div><span style="font-size:12px;font-weight:700">81%</span></td>
+                  <td><span class="status-chip st-sched"><span class="st-dot"></span>Scheduled</span></td>
+                  <td><button class="action-btn ab-sec">View</button></td>
+                </tr>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:10px"><div class="t-av cc">🧑‍💻</div><div><div style="font-weight:600;font-size:13px">Priya Nair</div><div style="font-size:11px;color:var(--text-lite)">4y exp</div></div></div></td>
+                  <td style="font-size:13px">Frontend Engineer</td>
+                  <td><span class="skill-pill">Vue</span><span class="skill-pill">CSS</span><span class="skill-pill">JS</span></td>
+                  <td><div class="match-bar-wrap"><div class="match-bar-fill" style="width:71%;background:linear-gradient(90deg,#fbbf24,#fde68a)"></div></div><span style="font-size:12px;font-weight:700">71%</span></td>
+                  <td><span class="status-chip st-review"><span class="st-dot"></span>In Review</span></td>
+                  <td><button class="action-btn ab-sec">Review</button></td>
+                </tr>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:10px"><div class="t-av cd">👩‍🎨</div><div><div style="font-weight:600;font-size:13px">Lena Schwartz</div><div style="font-size:11px;color:var(--text-lite)">3.5y exp</div></div></div></td>
+                  <td style="font-size:13px">UI Engineer</td>
+                  <td><span class="skill-pill">React</span><span class="skill-pill">Figma</span><span class="skill-pill">CSS</span></td>
+                  <td><div class="match-bar-wrap"><div class="match-bar-fill" style="width:92%"></div></div><span style="font-size:12px;font-weight:700">92%</span></td>
+                  <td><span class="status-chip st-new"><span class="st-dot"></span>New</span></td>
+                  <td><button class="action-btn ab-pri">Shortlist</button></td>
+                </tr>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:10px"><div class="t-av" style="background:linear-gradient(135deg,#e0e7ff,#a5b4fc)">👨‍🔬</div><div><div style="font-weight:600;font-size:13px">Omar Farisi</div><div style="font-size:11px;color:var(--text-lite)">7y exp</div></div></div></td>
+                  <td style="font-size:13px">Senior React Dev</td>
+                  <td><span class="skill-pill">React</span><span class="skill-pill">GraphQL</span><span class="skill-pill">AWS</span></td>
+                  <td><div class="match-bar-wrap"><div class="match-bar-fill" style="width:95%"></div></div><span style="font-size:12px;font-weight:700">95%</span></td>
+                  <td><span class="status-chip st-short"><span class="st-dot"></span>Shortlisted</span></td>
+                  <td><button class="action-btn ab-pri">Schedule</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- ── ANALYTICS ── -->
+          <div class="tab-panel" id="panel-analytics">
+            <div class="big-kpi-row">
+              <div class="big-kpi"><div class="bk-num">80%</div><div class="bk-lbl">Screening time saved</div></div>
+              <div class="big-kpi"><div class="bk-num">3.2d</div><div class="bk-lbl">Avg. time-to-interview</div></div>
+              <div class="big-kpi"><div class="bk-num">92%</div><div class="bk-lbl">Scheduling success</div></div>
+              <div class="big-kpi"><div class="bk-num">$14</div><div class="bk-lbl">AI cost per 1k resumes</div></div>
+            </div>
+            <div class="analytics-grid">
+              <div class="chart-card">
+                <div class="card-head">Resumes Processed <span class="ctag">Last 6 months</span></div>
+                <div class="mini-bar-chart">
+                  <div class="mbar-col"><div class="mbar" style="height:55px;background:linear-gradient(180deg,var(--violet-mid),rgba(108,71,255,.2))"></div><div class="mbar-v">820</div><div class="mbar-l">Aug</div></div>
+                  <div class="mbar-col"><div class="mbar" style="height:72px;background:linear-gradient(180deg,var(--violet-mid),rgba(108,71,255,.2))"></div><div class="mbar-v">980</div><div class="mbar-l">Sep</div></div>
+                  <div class="mbar-col"><div class="mbar" style="height:65px;background:linear-gradient(180deg,var(--violet-mid),rgba(108,71,255,.2))"></div><div class="mbar-v">910</div><div class="mbar-l">Oct</div></div>
+                  <div class="mbar-col"><div class="mbar" style="height:88px;background:linear-gradient(180deg,var(--violet-mid),rgba(108,71,255,.2))"></div><div class="mbar-v">1.1k</div><div class="mbar-l">Nov</div></div>
+                  <div class="mbar-col"><div class="mbar" style="height:95px;background:linear-gradient(180deg,var(--violet-mid),rgba(108,71,255,.2))"></div><div class="mbar-v">1.2k</div><div class="mbar-l">Dec</div></div>
+                  <div class="mbar-col"><div class="mbar" style="height:105px;background:linear-gradient(135deg,var(--violet),var(--pink));box-shadow:0 4px 12px rgba(108,71,255,.3)"></div><div class="mbar-v" style="color:var(--violet)">1.25k</div><div class="mbar-l" style="color:var(--violet);font-weight:700">Jan</div></div>
+                </div>
+              </div>
+              <div class="chart-card">
+                <div class="card-head">Match Score Distribution <span class="ctag">All roles</span></div>
+                <div class="donut-wrap">
+                  <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg);flex-shrink:0">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(108,71,255,.07)" stroke-width="16"/>
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="url(#dg1)" stroke-width="16" stroke-dasharray="251.2" stroke-dashoffset="63" style="animation:rd 1.2s ease both"/>
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="url(#dg2)" stroke-width="16" stroke-dasharray="251.2" stroke-dashoffset="176" style="animation:rd 1.2s .2s ease both"/>
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="url(#dg3)" stroke-width="16" stroke-dasharray="251.2" stroke-dashoffset="226" style="animation:rd 1.2s .4s ease both"/>
+                    <defs>
+                      <linearGradient id="dg1"><stop offset="0%" stop-color="#6c47ff"/><stop offset="100%" stop-color="#8b6bff"/></linearGradient>
+                      <linearGradient id="dg2"><stop offset="0%" stop-color="#ff6bc6"/><stop offset="100%" stop-color="#ff9dd7"/></linearGradient>
+                      <linearGradient id="dg3"><stop offset="0%" stop-color="#00d4c8"/><stop offset="100%" stop-color="#5eead4"/></linearGradient>
+                    </defs>
+                  </svg>
+                  <div class="donut-legend">
+                    <div class="dl-item"><div class="dl-dot" style="background:var(--violet)"></div>80%+ (top match)<div class="dl-pct">25%</div></div>
+                    <div class="dl-item"><div class="dl-dot" style="background:var(--pink)"></div>60–79% (review)<div class="dl-pct">45%</div></div>
+                    <div class="dl-item"><div class="dl-dot" style="background:var(--teal)"></div>Below 60%<div class="dl-pct">30%</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SCHEDULE ── -->
+          <div class="tab-panel" id="panel-schedule">
+            <div class="sched-grid">
+              <div class="cal-card">
+                <div class="cal-header">
+                  <button class="cal-nav">‹</button>
+                  <span class="cal-month">January 2026</span>
+                  <button class="cal-nav">›</button>
+                </div>
+                <div class="cal-days-header">
+                  <div class="cal-dh">Mo</div><div class="cal-dh">Tu</div><div class="cal-dh">We</div><div class="cal-dh">Th</div><div class="cal-dh">Fr</div><div class="cal-dh">Sa</div><div class="cal-dh">Su</div>
+                </div>
+                <div class="cal-days">
+                  <div class="cal-day other">30</div><div class="cal-day other">31</div>
+                  <div class="cal-day">1</div><div class="cal-day">2</div><div class="cal-day has-event">3</div><div class="cal-day">4</div><div class="cal-day">5</div>
+                  <div class="cal-day has-event">6</div><div class="cal-day">7</div><div class="cal-day has-event">8</div><div class="cal-day">9</div><div class="cal-day has-event">10</div><div class="cal-day">11</div><div class="cal-day">12</div>
+                  <div class="cal-day">13</div><div class="cal-day has-event">14</div><div class="cal-day today">15</div><div class="cal-day selected">16</div><div class="cal-day has-event">17</div><div class="cal-day">18</div><div class="cal-day">19</div>
+                  <div class="cal-day">20</div><div class="cal-day has-event">21</div><div class="cal-day">22</div><div class="cal-day">23</div><div class="cal-day has-event">24</div><div class="cal-day">25</div><div class="cal-day">26</div>
+                  <div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day">29</div><div class="cal-day">30</div><div class="cal-day">31</div><div class="cal-day other">1</div><div class="cal-day other">2</div>
+                </div>
+              </div>
+              <div class="upcoming-card">
+                <div class="card-head" style="margin-bottom:14px">Jan 16 — Upcoming Interviews <span class="ctag">4 scheduled</span></div>
+                <div class="interview-slot">
+                  <div class="slot-time"><div class="slot-hr">09:00</div><div class="slot-ampm">AM</div></div>
+                  <div class="slot-divider"></div>
+                  <div class="slot-info">
+                    <div class="slot-name">Sarah Chen</div>
+                    <div class="slot-role">Senior React Developer · Technical Round</div>
+                    <div class="slot-tags"><span class="slot-tag">Google Meet</span><span class="slot-tag">45 min</span><span class="slot-tag">87% match</span></div>
+                  </div>
+                  <button class="slot-action">📋</button>
+                </div>
+                <div class="interview-slot">
+                  <div class="slot-time"><div class="slot-hr">11:30</div><div class="slot-ampm">AM</div></div>
+                  <div class="slot-divider"></div>
+                  <div class="slot-info">
+                    <div class="slot-name">Marcus Reid</div>
+                    <div class="slot-role">React Developer · Culture Fit</div>
+                    <div class="slot-tags"><span class="slot-tag">Google Meet</span><span class="slot-tag">30 min</span><span class="slot-tag">81% match</span></div>
+                  </div>
+                  <button class="slot-action">📋</button>
+                </div>
+                <div class="interview-slot">
+                  <div class="slot-time"><div class="slot-hr">02:00</div><div class="slot-ampm">PM</div></div>
+                  <div class="slot-divider"></div>
+                  <div class="slot-info">
+                    <div class="slot-name">Omar Farisi</div>
+                    <div class="slot-role">Senior React Developer · First Round</div>
+                    <div class="slot-tags"><span class="slot-tag">Google Meet</span><span class="slot-tag">60 min</span><span class="slot-tag">95% match</span></div>
+                  </div>
+                  <button class="slot-action">📋</button>
+                </div>
+                <div class="interview-slot">
+                  <div class="slot-time"><div class="slot-hr">04:30</div><div class="slot-ampm">PM</div></div>
+                  <div class="slot-divider"></div>
+                  <div class="slot-info">
+                    <div class="slot-name">Lena Schwartz</div>
+                    <div class="slot-role">UI Engineer · Portfolio Review</div>
+                    <div class="slot-tags"><span class="slot-tag">Google Meet</span><span class="slot-tag">45 min</span><span class="slot-tag">92% match</span></div>
+                  </div>
+                  <button class="slot-action">📋</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── AI INSIGHTS ── -->
+          <div class="tab-panel" id="panel-insights">
+            <div class="insights-grid">
+              <div class="insight-card">
+                <div class="ic-icon ic1">🎯</div>
+                <div class="ic-title">Top Skills in Pipeline</div>
+                <div class="skill-heatmap">
+                  <div class="sh-cell" style="background:linear-gradient(135deg,var(--violet),var(--violet-mid))">React</div>
+                  <div class="sh-cell" style="background:linear-gradient(135deg,#8b6bff,#a98bff)">TS</div>
+                  <div class="sh-cell" style="background:linear-gradient(135deg,var(--pink),var(--pink-lite))">Node</div>
+                  <div class="sh-cell" style="background:linear-gradient(135deg,var(--teal),var(--teal-lite))">GraphQL</div>
+                  <div class="sh-cell" style="background:linear-gradient(135deg,#fbbf24,#fde68a);color:var(--text)">AWS</div>
+                  <div class="sh-cell" style="background:linear-gradient(135deg,#6ee7b7,#34d399);color:var(--text)">Docker</div>
+                </div>
+                <div class="ic-desc" style="margin-top:12px">React appears in 91% of shortlisted profiles. TypeScript adoption is rising — 68% of applicants list it vs 42% last quarter.</div>
+              </div>
+              <div class="insight-card">
+                <div class="ic-icon ic2">📈</div>
+                <div class="ic-title">Hire Probability by Stage</div>
+                <div style="margin-top:4px">
+                  <div class="prob-row"><span class="prob-name">Applied</span><div class="prob-track"><div class="prob-fill p1" style="width:27%"></div></div><span class="prob-val">27%</span></div>
+                  <div class="prob-row"><span class="prob-name">Shortlisted</span><div class="prob-track"><div class="prob-fill p2" style="width:52%"></div></div><span class="prob-val">52%</span></div>
+                  <div class="prob-row"><span class="prob-name">Screened</span><div class="prob-track"><div class="prob-fill p3" style="width:68%"></div></div><span class="prob-val">68%</span></div>
+                  <div class="prob-row"><span class="prob-name">Interviewed</span><div class="prob-track"><div class="prob-fill p4" style="width:82%"></div></div><span class="prob-val">82%</span></div>
+                  <div class="prob-row"><span class="prob-name">Final Round</span><div class="prob-track"><div class="prob-fill p5" style="width:91%"></div></div><span class="prob-val">91%</span></div>
+                </div>
+              </div>
+              <div class="insight-card ic3">
+                <div class="ic-icon ic3">⚡</div>
+                <div class="ic-title">Bias Detection Report</div>
+                <div class="ic-desc">No statistically significant bias detected in shortlisting decisions this month. Gender ratio: 54% / 46%. Diversity score: <strong style="color:var(--teal)">8.4/10</strong> — up from 7.1 last quarter. Keep it up!</div>
+              </div>
+              <div class="insight-card">
+                <div class="ic-icon ic4">💡</div>
+                <div class="ic-title">AI Recommendation</div>
+                <div class="ic-desc">3 candidates from Q3 2025 match your new <strong>Node.js Backend</strong> role perfectly. Reaching out to them could save 2–3 weeks vs. fresh sourcing. <span style="color:var(--violet);font-weight:600;cursor:pointer">View matches →</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /db-content -->
+      </div><!-- /db-shell -->
+    </div><!-- /dashboard -->
+  </div><!-- /db-outer -->
+</section>
+
+<!-- ══ STATS ══════════════════════════════════ -->
+<section class="stats-sec">
+  <div class="stats-inner">
+    <div class="stat-card"><span class="stat-num">80%</span><div class="stat-lbl">Reduction in resume screening time</div></div>
+    <div class="stat-card"><span class="stat-num">90%</span><div class="stat-lbl">Interview scheduling fully automated</div></div>
+    <div class="stat-card"><span class="stat-num">60%</span><div class="stat-lbl">Faster overall time-to-hire</div></div>
+    <div class="stat-card"><span class="stat-num">30h</span><div class="stat-lbl">HR hours saved every single week</div></div>
+  </div>
+</section>
+
+<!-- ══ HOW IT WORKS ══════════════════════════════════ -->
+<section class="how-sec" id="howitworks">
+  <span class="sec-tag">How It Works</span>
+  <h2 class="sec-title">From application to offer,<br><span class="grad">step by step.</span></h2>
+  <p class="sec-sub">Click any phase to expand the full detail of what Aura's AI is doing behind the scenes.</p>
+
+  <div class="flow-container">
+    <!-- Step 1 -->
+    <div class="flow-step active" onclick="toggleStep(this)">
+      <div class="step-left">
+        <div class="step-num-wrap">1</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-card">
+          <div class="step-phase"><span class="step-phase-dot"></span>Phase 01 — Intake</div>
+          <div class="step-title">AI Resume Intelligence</div>
+          <div class="step-summary">The moment a candidate uploads their resume, Aura's AI engine instantly begins a multi-layer analysis — no waiting, no queue.</div>
+          <div class="step-detail open">
+            <div class="step-detail-inner">
+              <div class="step-detail-desc">Aura processes PDF and DOCX files in parallel. It doesn't just extract text — it understands context. A candidate who lists "built e-commerce checkout flows" gets Redux and REST APIs inferred as hidden skills, even if they didn't explicitly write them.</div>
+              <div class="sub-steps">
+                <div class="sub-step"><span class="sub-icon">📄</span><div class="sub-text-wrap"><div class="sub-title">Document Parsing</div><div class="sub-desc">PDF, DOCX, and plain text resumes extracted with layout-aware parsing. Handles columns, tables, and non-standard templates.</div></div><span class="sub-badge badge-violet">Haiku 4.5</span></div>
+                <div class="sub-step"><span class="sub-icon">🏷️</span><div class="sub-text-wrap"><div class="sub-title">Explicit Skill Extraction</div><div class="sub-desc">Identifies directly listed technologies: React, Node.js, TypeScript, PostgreSQL, Docker — cross-referenced against role requirements.</div></div><span class="sub-badge badge-violet">AI</span></div>
+                <div class="sub-step"><span class="sub-icon">🔍</span><div class="sub-text-wrap"><div class="sub-title">Hidden Skill Inference</div><div class="sub-desc">Reads between the lines. "Led API integration for 3 microservices" → infers REST, Git, Postman even if not listed explicitly.</div></div><span class="sub-badge badge-teal">Sonnet 4.5</span></div>
+                <div class="sub-step"><span class="sub-icon">📊</span><div class="sub-text-wrap"><div class="sub-title">Experience Calculation</div><div class="sub-desc">Parses dates from all positions, handles gaps, overlaps, and freelance work. Returns precise decimal years (e.g. 6.5y).</div></div><span class="sub-badge badge-violet">AI</span></div>
+              </div>
+              <div class="step-tags">
+                <span class="step-tag tag-v">Skill Extraction</span>
+                <span class="step-tag tag-v">Experience Calc</span>
+                <span class="step-tag tag-v">Seniority Detection</span>
+                <span class="step-tag tag-t">~10 seconds</span>
+              </div>
+              <div class="live-demo">
+                <div class="demo-label">Live Output Example</div>
+                <div class="demo-content">
+                  <strong>Skills found:</strong> React, TypeScript, Node.js, PostgreSQL<br>
+                  <strong>Inferred:</strong> Redux, REST APIs, Git, Docker<br>
+                  <strong>Experience:</strong> 6.5 years · <strong>Level:</strong> Senior
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="flow-step" onclick="toggleStep(this)">
+      <div class="step-left">
+        <div class="step-num-wrap">2</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-card">
+          <div class="step-phase"><span class="step-phase-dot"></span>Phase 02 — Scoring</div>
+          <div class="step-title">Smart Auto-Shortlisting</div>
+          <div class="step-summary">Every candidate is scored against your exact role requirements. Those who clear your threshold are instantly shortlisted — automatically.</div>
+          <div class="step-detail">
+            <div class="step-detail-inner">
+              <div class="step-detail-desc">You set the rules once. Aura enforces them perfectly, every time, at scale. A match score of 87% against an 80% threshold means the candidate is shortlisted, their status updated, your HR team notified in the dashboard, and the candidate emailed — all within seconds of application.</div>
+              <div class="sub-steps">
+                <div class="sub-step"><span class="sub-icon">🎯</span><div class="sub-text-wrap"><div class="sub-title">Match Score Calculation</div><div class="sub-desc">Weighted comparison of candidate skills, experience, and seniority vs. role requirements. Returns a 0–100% score.</div></div><span class="sub-badge badge-teal">Sonnet 4.5</span></div>
+                <div class="sub-step"><span class="sub-icon">⚡</span><div class="sub-text-wrap"><div class="sub-title">Threshold Auto-Check</div><div class="sub-desc">If score ≥ your threshold (e.g. 80%), candidate is instantly shortlisted. Zero manual intervention required.</div></div><span class="sub-badge badge-violet">Automated</span></div>
+                <div class="sub-step"><span class="sub-icon">🔔</span><div class="sub-text-wrap"><div class="sub-title">Instant Notifications</div><div class="sub-desc">HR team gets a dashboard notification. Candidate receives a branded "Application under review" email. Status updated.</div></div><span class="sub-badge badge-pink">Real-time</span></div>
+              </div>
+              <div class="step-tags">
+                <span class="step-tag tag-v">Match Scoring</span>
+                <span class="step-tag tag-v">Auto-Shortlist</span>
+                <span class="step-tag tag-p">HR Notification</span>
+                <span class="step-tag tag-t">Fully Automated</span>
+              </div>
+              <div class="live-demo">
+                <div class="demo-label">Live Output Example</div>
+                <div class="demo-content">
+                  <strong>Match Score:</strong> 87% ≥ 80% threshold ✅<br>
+                  <strong>Status:</strong> → Shortlisted<br>
+                  <strong>Action:</strong> HR notified · Candidate emailed
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="flow-step" onclick="toggleStep(this)">
+      <div class="step-left">
+        <div class="step-num-wrap">3</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-right">
+        <div class="step-card">
+          <div class="step-phase"><span class="step-phase-dot"></span>Phase 03 — Scheduling</div>
+          <div class="step-title">Conflict-Free Scheduling</div>
+          <div class="step-summary">One click. Aura cross-references calendars, blocks slots, generates a Meet link, and sends invites to everyone — in 30 seconds.</div>
+          <div class="step-detail">
+            <div class="step-detail-inner">
+              <div class="step-detail-desc">What used to take 15 emails and 3 days of back-and-forth now takes a single button press. Aura fetches both the candidate's submitted availability and the interviewer's live calendar, finds the overlap, and handles everything — including preventing double-bookings across multiple concurrent hiring pipelines.</div>
+              <div class="sub-steps">
+                <div class="sub-step"><span class="sub-icon">📆</span><div class="sub-text-wrap"><div class="sub-title">Availability Cross-Reference</div><div class="sub-desc">Fetches candidate's submitted time windows and interviewer's Google/Outlook calendar. Finds optimal overlapping slot.</div></div><span class="sub-badge badge-violet">Automated</span></div>
+                <div class="sub-step"><span class="sub-icon">🚫</span><div class="sub-text-wrap"><div class="sub-title">Conflict Prevention</div><div class="sub-desc">Checks for existing bookings across all active roles. One interviewer can't be double-booked even across 10 concurrent pipelines.</div></div><span class="sub-badge badge-teal">Real-time</span></div>
+                <div class="sub-step"><span class="sub-icon">🎥</span><div class="sub-text-wrap"><div class="sub-title">Meet Link + Calendar Invites</div><div class="sub-desc">Google Meet link auto-generated. Calendar invites dispatched to candidate, interviewer, and HR. All in one action.</div></div><span class="sub-badge badge-pink">30 seconds</span></div>
+              </div>
+              <div class="step-tags">
+                <span class="step-tag tag-v">Slot Matching</span>
+                <span class="step-tag tag-v">Conflict Detection</span>
+                <span class="step-tag tag-p">Meet Link</span>
+                <span class="step-tag tag-t">30 seconds</span>
+              </div>
+              <div class="live-demo">
+                <div class="demo-label">Live Output Example</div>
+                <div class="demo-content">
+                  <strong>Optimal Slot:</strong> Jan 16, 2:00 PM<br>
+                  <strong>Meet Link:</strong> meet.google.com/aura-xyz-123<br>
+                  <strong>Invites sent:</strong> Candidate · Interviewer · HR ✅
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="flow-step" onclick="toggleStep(this)">
+      <div class="step-left">
+        <div class="step-num-wrap">4</div>
+      </div>
+      <div class="step-right">
+        <div class="step-card">
+          <div class="step-phase"><span class="step-phase-dot"></span>Phase 04 — Decision</div>
+          <div class="step-title">Interview Intelligence & Hiring</div>
+          <div class="step-summary">Post-interview AI analysis turns structured feedback into a hiring recommendation — with an updated probability score and permanent candidate storage.</div>
+          <div class="step-detail">
+            <div class="step-detail-inner">
+              <div class="step-detail-desc">The interviewer submits a structured feedback form rating Technical Skills, Communication, and Culture Fit with a Hire / No Hire / Maybe recommendation. Aura's AI synthesizes this, updates the hire probability (e.g. 75% → 82%), generates a summary, and surfaces it all in the HR dashboard. Every candidate — hired or not — is permanently stored and re-matchable.</div>
+              <div class="sub-steps">
+                <div class="sub-step"><span class="sub-icon">📝</span><div class="sub-text-wrap"><div class="sub-title">Structured Feedback Collection</div><div class="sub-desc">Interviewers fill a consistent, role-specific form. Removes subjectivity and ensures apples-to-apples comparison across candidates.</div></div><span class="sub-badge badge-violet">Structured</span></div>
+                <div class="sub-step"><span class="sub-icon">🧠</span><div class="sub-text-wrap"><div class="sub-title">AI Feedback Analysis</div><div class="sub-desc">Aura reads interviewer notes, identifies sentiment, extracts key signals, and generates a concise summary for HR review.</div></div><span class="sub-badge badge-teal">Sonnet 4.5</span></div>
+                <div class="sub-step"><span class="sub-icon">💾</span><div class="sub-text-wrap"><div class="sub-title">Permanent Talent Database</div><div class="sub-desc">Every candidate stored forever. When a new role opens, Aura re-matches your entire historical pool — and alerts you to strong fits.</div></div><span class="sub-badge badge-pink">Forever</span></div>
+              </div>
+              <div class="step-tags">
+                <span class="step-tag tag-v">Feedback Analysis</span>
+                <span class="step-tag tag-v">Hire Probability</span>
+                <span class="step-tag tag-p">Talent Database</span>
+                <span class="step-tag tag-t">AI Recommendation</span>
+              </div>
+              <div class="live-demo">
+                <div class="demo-label">Live Output Example</div>
+                <div class="demo-content">
+                  <strong>Hire Probability:</strong> 75% → 82% (↑ post-interview)<br>
+                  <strong>Recommendation:</strong> HIRE ✅<br>
+                  <strong>Stored in:</strong> Talent Database · searchable forever
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ══════════════════════════════════ -->
+<section class="cta-sec">
+  <div class="cta-inner">
+    <div class="cta-badge-w">✦ Start hiring smarter today</div>
+    <h2>Your next great hire<br>is already waiting.</h2>
+    <p>Join 2,400+ companies that have transformed their recruitment with Aura. Free to start. No credit card required.</p>
+    <div class="cta-btns">
+      <button class="btn-w">Start Free Trial →</button>
+      <button class="btn-gw">Book a Demo</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══════════════════════════════════ -->
+<footer>
+  <div class="foot-top">
+    <div class="foot-brand">
+      <a class="nav-logo" href="#" style="text-decoration:none;display:flex;align-items:center;gap:10px">
+        <div class="nav-icon">✦</div>
+        <span class="nav-name">Aura</span>
+      </a>
+      <p>Intelligent hiring for modern teams. From resume to offer letter — all automated.</p>
+      <div class="foot-social">
+        <button class="soc">𝕏</button>
+        <button class="soc">in</button>
+        <button class="soc">▶</button>
+        <button class="soc">★</button>
+      </div>
+    </div>
+    <div class="foot-col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#">Features</a></li>
+        <li><a href="#">How It Works</a></li>
+        <li><a href="#">Pricing</a></li>
+        <li><a href="#">Changelog</a></li>
+        <li><a href="#">Roadmap</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">GDPR</a></li>
+        <li><a href="#">Security</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span class="foot-copy">© 2025 Aura Technologies, Inc. All rights reserved.</span>
+    <div class="foot-badges">
+      <span class="fbadge">SOC 2</span>
+      <span class="fbadge">GDPR Ready</span>
+      <span class="fbadge">99.9% Uptime</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── Dashboard tab switching ───────────────────
+function switchTab(name, tabEl, sideEl) {
+  // Hide all panels
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('on'));
+  // Show target
+  const panel = document.getElementById('panel-' + name);
+  if (panel) panel.classList.add('on');
+
+  // Update top tabs
+  if (tabEl) {
+    document.querySelectorAll('.db-tab').forEach(t => t.classList.remove('on'));
+    tabEl.classList.add('on');
+  }
+
+  // Update sidebar
+  if (sideEl) {
+    document.querySelectorAll('.side-item').forEach(s => s.classList.remove('on'));
+    sideEl.classList.add('on');
+  }
+
+  // Sync top tabs with sidebar clicks and vice versa
+  const tabMap = {overview:0, candidates:1, analytics:2, schedule:3, insights:4};
+  if (sideEl && tabMap[name] !== undefined) {
+    const tabs = document.querySelectorAll('.db-tab');
+    tabs.forEach(t => t.classList.remove('on'));
+    if (tabs[tabMap[name]]) tabs[tabMap[name]].classList.add('on');
+  }
+  if (tabEl) {
+    const sideMap = {0:'overview',1:'candidates',2:'analytics',3:'schedule',4:'insights'};
+    const idx = Array.from(document.querySelectorAll('.db-tab')).indexOf(tabEl);
+    const key = sideMap[idx];
+    if (key) {
+      const sideItems = document.querySelectorAll('.side-item');
+      const sideKeys = ['overview','candidates',null,'schedule',null,'analytics','insights',null,null,null];
+      sideItems.forEach((s,i) => { s.classList.remove('on'); if(sideKeys[i]===key) s.classList.add('on'); });
+    }
+  }
+}
+
+// ── How It Works step toggle ──────────────────
+function toggleStep(stepEl) {
+  const wasActive = stepEl.classList.contains('active');
+
+  // Close all
+  document.querySelectorAll('.flow-step').forEach(s => {
+    s.classList.remove('active');
+    const detail = s.querySelector('.step-detail');
+    if (detail) detail.classList.remove('open');
+  });
+
+  // Open clicked (if it wasn't already open)
+  if (!wasActive) {
+    stepEl.classList.add('active');
+    const detail = stepEl.querySelector('.step-detail');
+    if (detail) detail.classList.add('open');
+  }
+}
+</script>
+</body>
+</html>

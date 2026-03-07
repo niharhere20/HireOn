@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")       // pooled connection — used at runtime
+  directUrl = env("DIRECT_URL")         // direct connection — used for migrations
+}
+
+// ─── ENUMS ───────────────────────────────────────
+
+enum Role {
+  HR
+  INTERVIEWER
+  CANDIDATE
+}
+
+enum CandidateStatus {
+  APPLIED
+  SHORTLISTED
+  SCHEDULED
+  INTERVIEWED
+  HIRED
+  REJECTED
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+// ─── MODELS ──────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  candidate          Candidate?
+  availabilitySlots  AvailabilitySlot[]
+  interviewsAsHR     Interview[]        @relation("HRInterviews")
+  interviewsAsViewer Interview[]        @relation("InterviewerInterviews")
+  techRequirements   TechRequirement[]
+  auditLogs          AuditLog[]
+
+  @@map("users")
+}
+
+model Candidate {
+  id                    String          @id @default(uuid())
+  userId                String          @unique
+  user                  User            @relation(fields: [userId], references: [id])
+  resumeUrl             String?
+  resumeText            String?
+  status                CandidateStatus @default(APPLIED)
+  assignedRequirementId String?
+  assignedRequirement   TechRequirement? @relation(fields: [assignedRequirementId], references: [id])
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  // Relations
+  aiProfile  AIProfile?
+  interviews Interview[]
+
+  @@index([status])
+  @@map("candidates")
+}
+
+model AIProfile {
+  id              String   @id @default(uuid())
+  candidateId     String   @unique
+  candidate       Candidate @relation(fields: [candidateId], references: [id])
+  experienceYears Float
+  seniorityLevel  String
+  extractedSkills Json     // string[]
+  inferredSkills  Json     // string[]
+  strengths       String
+  weaknesses      String
+  matchScore      Float
+  hireProbability Float
+  rawResponse     Json     // full AI response
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([matchScore])
+  @@map("ai_profiles")
+}
+
+model TechRequirement {
+  id             String   @id @default(uuid())
+  title          String
+  description    String?
+  techStack      Json     // string[]
+  minExperience  Float
+  matchThreshold Float    @default(80)
+  openings       Int      @default(1)
+  isActive       Boolean  @default(true)
+  createdByHRId  String
+  createdByHR    User     @relation(fields: [createdByHRId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  candidates Candidate[]
+
+  @@map("tech_requirements")
+}
+
+model AvailabilitySlot {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  startTime DateTime
+  endTime   DateTime
+  isBooked  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([startTime])
+  @@map("availability_slots")
+}
+
+model Interview {
+  id            String          @id @default(uuid())
+  candidateId   String
+  candidate     Candidate       @relation(fields: [candidateId], references: [id])
+  interviewerId String
+  interviewer   User            @relation("InterviewerInterviews", fields: [interviewerId], references: [id])
+  hrId          String
+  hr            User            @relation("HRInterviews", fields: [hrId], references: [id])
+  startTime     DateTime
+  endTime       DateTime
+  meetLink      String?
+  status        InterviewStatus @default(SCHEDULED)
+  feedback      String?
+  aiSummary     String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  // Unique constraints to prevent double-booking
+  @@unique([interviewerId, startTime])
+  @@unique([candidateId, startTime])
+  @@index([startTime])
+  @@map("interviews")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String
+  actor      User     @relation(fields: [actorId], references: [id])
+  action     String
+  entityType String
+  entityId   String
+  metadata   Json?
+  timestamp  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}

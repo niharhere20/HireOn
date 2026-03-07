@@ -1,0 +1,25 @@
+# Environment — never commit secrets
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Prisma generated client
+node_modules/.prisma
+
+# Logs
+*.log
+npm-debug.log*
+
+# Google OAuth tokens — never commit
+tokens.json
+
+# OS
+.DS_Store
+Thumbs.db

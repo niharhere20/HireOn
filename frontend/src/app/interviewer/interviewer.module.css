@@ -1,0 +1,136 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.pageTitle {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: var(--text);
+}
+
+.pageSub {
+    font-size: 14px;
+    color: var(--text-mid);
+    margin-top: 4px;
+}
+
+.statsRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 720px) {
+    .statsRow { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+    .statsRow { grid-template-columns: 1fr; gap: 10px; }
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--r-md);
+    padding: 24px;
+    transition: background 0.3s, border-color 0.3s;
+}
+
+.cardHead {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text);
+}
+
+.interviewList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ivCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--card-border);
+    transition: all .2s;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.ivCard:hover {
+    background: var(--hover-row);
+    border-color: rgba(108, 71, 255, .18);
+    box-shadow: var(--shadow);
+}
+
+.ivLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.ivAv {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.ivName {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.ivRole {
+    font-size: 12px;
+    color: var(--text-lite);
+}
+
+.ivMid {
+    flex: 0 0 auto;
+}
+
+.ivTime {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.ivDur {
+    font-size: 11px;
+    color: var(--text-lite);
+}
+
+.ivActions {
+    display: flex;
+    gap: 8px;
+}
+
+.scoreNum {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+}

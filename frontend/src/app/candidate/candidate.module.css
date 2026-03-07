@@ -1,0 +1,245 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.pageTitle {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: var(--text);
+}
+
+.pageSub {
+    font-size: 14px;
+    color: var(--text-mid);
+    margin-top: 4px;
+}
+
+.statsRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+    .statsRow { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+    .statsRow { grid-template-columns: 1fr 1fr; gap: 10px; }
+}
+
+.grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 900px) {
+    .grid2 { grid-template-columns: 1fr; }
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--r-md);
+    padding: 24px;
+    transition: background 0.3s, border-color 0.3s;
+}
+
+.cardHead {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text);
+}
+
+/* Resume */
+.resumeBox {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    background: rgba(108, 71, 255, .05);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(108, 71, 255, .1);
+}
+
+.resumeIcon {
+    font-size: 28px;
+}
+
+.resumeName {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.resumeMeta {
+    font-size: 11px;
+    color: var(--text-lite);
+    margin-top: 2px;
+}
+
+.uploadArea {
+    border: 2px dashed rgba(108, 71, 255, .22);
+    border-radius: 14px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    margin-bottom: 20px;
+}
+
+.uploadArea:hover {
+    border-color: var(--violet);
+    background: rgba(108, 71, 255, .04);
+}
+
+.uploadIcon {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.uploadText {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.6;
+}
+
+.uploadText strong {
+    color: var(--text);
+}
+
+/* AI Summary */
+.aiSummary {
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(108, 71, 255, .05), rgba(255, 107, 198, .04));
+    border-radius: 14px;
+    border: 1px solid rgba(108, 71, 255, .1);
+}
+
+.aiTitle {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--text);
+}
+
+.aiGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.aiItem {
+    padding: 10px;
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+}
+
+.aiLbl {
+    font-size: 11px;
+    color: var(--text-lite);
+    font-weight: 500;
+}
+
+.aiVal {
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 2px;
+    color: var(--text);
+}
+
+.aiSkills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+/* Upcoming Interview */
+.nextIv {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.nextIvRole {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text);
+}
+
+.nextIvMeta {
+    font-size: 13px;
+    color: var(--text-mid);
+}
+
+.nextIvTime {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--violet);
+    margin-top: 12px;
+}
+
+/* Applications */
+.appList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.appRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    transition: all .2s;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.appRow:hover {
+    background: var(--hover-row);
+    border-color: rgba(108, 71, 255, .16);
+}
+
+.appRole {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.appCompany {
+    font-size: 12px;
+    color: var(--text-lite);
+    margin-top: 2px;
+}
+
+.appRight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.appScore {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+}
