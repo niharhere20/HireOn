@@ -163,6 +163,7 @@ export default function TalentDatabasePage() {
                 ) : filtered.length === 0 ? (
                     <p style={{ color: "var(--text-lite)", fontSize: 14, padding: "20px 0" }}>No candidates match your filters.</p>
                 ) : (
+                    <div className={styles.tableWrap}>
                     <table className={styles.table}>
                         <thead>
                             <tr>
@@ -229,6 +230,7 @@ export default function TalentDatabasePage() {
                             })}
                         </tbody>
                     </table>
+                    </div>
                 )}
             </div>
         </div>

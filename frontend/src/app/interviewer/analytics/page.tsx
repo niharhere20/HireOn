@@ -174,7 +174,8 @@ export default function InterviewerAnalyticsPage() {
                         {completed.length === 0 ? (
                             <p style={{ color: "var(--text-lite)", fontSize: 14 }}>No completed interviews yet.</p>
                         ) : (
-                            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 400 }}>
                                 <thead>
                                     <tr style={{ background: "var(--table-head)" }}>
                                         {["Candidate", "Date", "AI Score", "Feedback"].map((h) => (
@@ -224,6 +225,7 @@ export default function InterviewerAnalyticsPage() {
                                     ))}
                                 </tbody>
                             </table>
+                            </div>
                         )}
                     </div>
                 </>

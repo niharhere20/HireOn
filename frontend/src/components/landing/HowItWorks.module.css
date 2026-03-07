@@ -1,7 +1,7 @@
 .sec {
     position: relative;
     z-index: 1;
-    padding: 80px;
+    padding: 80px 48px;
 }
 
 .grid {
@@ -9,6 +9,17 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     margin-top: 48px;
+}
+
+@media (max-width: 900px) {
+    .sec { padding: 60px 24px; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+    .sec { padding: 40px 16px; }
+    .grid { grid-template-columns: 1fr; gap: 12px; }
+    .card { padding: 24px 20px; }
 }
 
 .card {
@@ -25,7 +36,7 @@
 .card:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-h);
-    background: #fff;
+    background: var(--glass-b);
 }
 
 .topRow {

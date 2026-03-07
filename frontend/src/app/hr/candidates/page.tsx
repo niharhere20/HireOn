@@ -75,16 +75,16 @@ export default function CandidatesPage() {
             </div>
 
             {/* Filters */}
-            <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+            <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
                 <input
                     type="text"
                     placeholder="Search by name or email..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     style={{
-                        flex: 1, padding: "10px 16px", borderRadius: 10,
-                        border: "1px solid rgba(108,71,255,.15)", fontSize: 13,
-                        background: "#fff", outline: "none",
+                        flex: 1, minWidth: 180, padding: "10px 16px", borderRadius: 10,
+                        border: "1px solid var(--input-border)", fontSize: 13,
+                        background: "var(--input-bg)", color: "var(--text)", outline: "none",
                     }}
                 />
                 <select
@@ -92,8 +92,8 @@ export default function CandidatesPage() {
                     onChange={(e) => setStatusFilter(e.target.value)}
                     style={{
                         padding: "10px 16px", borderRadius: 10,
-                        border: "1px solid rgba(108,71,255,.15)", fontSize: 13,
-                        background: "#fff", cursor: "pointer",
+                        border: "1px solid var(--input-border)", fontSize: 13,
+                        background: "var(--input-bg)", color: "var(--text)", cursor: "pointer",
                     }}
                 >
                     <option value="">All Statuses</option>
@@ -114,6 +114,7 @@ export default function CandidatesPage() {
                 ) : filtered.length === 0 ? (
                     <p style={{ color: "var(--text-lite)", fontSize: 14, padding: "20px 0" }}>No candidates found.</p>
                 ) : (
+                    <div className={styles.tableWrap}>
                     <table className={styles.table}>
                         <thead>
                             <tr>
@@ -196,6 +197,7 @@ export default function CandidatesPage() {
                             })}
                         </tbody>
                     </table>
+                    </div>
                 )}
             </div>
 
@@ -211,7 +213,7 @@ export default function CandidatesPage() {
                         display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000,
                     }}>
                         <div style={{
-                            background: "var(--card-bg, #fff)", borderRadius: 20, width: 460,
+                            background: "var(--modal-bg)", borderRadius: 20, width: "min(460px, calc(100vw - 32px))",
                             boxShadow: "0 20px 60px rgba(108,71,255,.18)", overflow: "hidden",
                         }}>
                             {/* Header */}

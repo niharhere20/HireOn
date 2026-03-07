@@ -135,8 +135,8 @@ export default function InterviewsPage() {
                     position: "fixed", inset: 0, background: "rgba(0,0,0,.4)",
                     display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000,
                 }}>
-                    <div style={{ background: "#fff", borderRadius: 16, padding: 32, width: 480 }}>
-                        <h3 style={{ fontWeight: 700, marginBottom: 16 }}>Submit Interview Feedback</h3>
+                    <div style={{ background: "var(--modal-bg)", borderRadius: 16, padding: 32, width: "min(480px, calc(100vw - 32px))" }}>
+                        <h3 style={{ fontWeight: 700, marginBottom: 16, color: "var(--text)" }}>Submit Interview Feedback</h3>
                         <p style={{ fontSize: 13, color: "var(--text-mid)", marginBottom: 16 }}>
                             Your feedback will be summarized by AI and shared with HR.
                         </p>
@@ -145,7 +145,7 @@ export default function InterviewsPage() {
                             value={feedbackText}
                             onChange={(e) => setFeedbackText(e.target.value)}
                             placeholder="Describe the candidate's technical skills, communication, problem-solving approach, and your hire/no-hire recommendation..."
-                            style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid rgba(108,71,255,.2)", fontSize: 13, resize: "vertical", fontFamily: "inherit" }}
+                            style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: "1px solid var(--input-border)", fontSize: 13, resize: "vertical", fontFamily: "inherit", background: "var(--input-bg)", color: "var(--text)", boxSizing: "border-box" }}
                         />
                         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 16 }}>
                             <button className="btn-gl" style={{ padding: "10px 20px", fontSize: 13 }} onClick={() => setFeedbackId(null)}>Cancel</button>

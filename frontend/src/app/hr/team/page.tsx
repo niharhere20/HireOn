@@ -37,7 +37,7 @@ export default function TeamPage() {
     const interviewers = members.filter((m) => m.role === "INTERVIEWER");
 
     return (
-        <div style={{ padding: "32px", maxWidth: 900 }}>
+        <div style={{ maxWidth: 900 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
                 <div>
                     <h1 style={{ fontSize: 26, fontWeight: 800, margin: 0 }}>Team Management</h1>
@@ -193,11 +193,12 @@ function MemberTable({ title, emoji, members }: { title: string; emoji: string; 
             <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "var(--text)" }}>
                 {emoji} {title} <span style={{ fontWeight: 400, color: "var(--text-mid)", fontSize: 14 }}>({members.length})</span>
             </h2>
-            <div style={{ background: "var(--kpi-bg, #fff)", border: "1px solid var(--table-border, rgba(108,71,255,0.1))", borderRadius: 12, overflow: "hidden" }}>
+            <div style={{ background: "var(--kpi-bg)", border: "1px solid var(--table-border)", borderRadius: 12, overflow: "hidden" }}>
                 {members.length === 0 ? (
                     <p style={{ padding: "20px 18px", color: "var(--text-mid)", fontSize: 14, margin: 0 }}>No {title.toLowerCase()} added yet.</p>
                 ) : (
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 480 }}>
                         <thead>
                             <tr style={{ background: "var(--table-head, rgba(248,245,255,0.85))" }}>
                                 {["Name", "Email", "Role", "Added"].map((h) => (
@@ -224,6 +225,7 @@ function MemberTable({ title, emoji, members }: { title: string; emoji: string; 
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 )}
             </div>
         </div>

@@ -341,3 +341,55 @@
     padding: 3px 10px;
     border-radius: 20px;
 }
+
+/* ─── DARK MODE — dashboard preview ─────────── */
+[data-theme="dark"] .dashboard {
+    background: rgba(13, 9, 32, 0.97);
+    border-color: rgba(108, 71, 255, 0.22);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme="dark"] .dbBar {
+    background: rgba(10, 5, 28, 0.98);
+    border-color: rgba(108, 71, 255, 0.12);
+}
+
+[data-theme="dark"] .dbUrl {
+    background: rgba(108, 71, 255, 0.1);
+    color: var(--text-lite);
+}
+
+[data-theme="dark"] .dbSearch {
+    background: rgba(108, 71, 255, 0.08);
+    border-color: rgba(108, 71, 255, 0.16);
+    color: var(--text-lite);
+}
+
+[data-theme="dark"] .card {
+    background: rgba(22, 10, 52, 0.95);
+    border-color: rgba(108, 71, 255, 0.14);
+}
+
+[data-theme="dark"] .fnTrack {
+    background: rgba(108, 71, 255, 0.12);
+}
+
+/* ─── RESPONSIVE — hero section ─────────────── */
+@media (max-width: 768px) {
+    .hero       { padding: 110px 24px 60px; }
+    .sub        { font-size: 16px; }
+    .kpiRow     { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .midRow     { grid-template-columns: 1fr; }
+    .dbSearch   { display: none; }
+    .trust      { flex-direction: column; gap: 8px; text-align: center; }
+    .ctas       { flex-direction: column; align-items: center; gap: 10px; }
+}
+
+@media (max-width: 480px) {
+    .hero       { padding: 88px 16px 44px; }
+    .kpiRow     { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .dbContent  { padding: 12px; }
+    .dbUrl      { font-size: 10px; margin: 0 8px; }
+    .dbBar      { padding: 10px 12px; }
+    .card       { padding: 14px; }
+}

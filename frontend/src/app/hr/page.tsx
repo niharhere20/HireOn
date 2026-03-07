@@ -136,6 +136,7 @@ export default function HRDashboard() {
                 {topCandidates.length === 0 ? (
                     <p style={{ color: "var(--text-lite)", fontSize: 14, padding: "12px 0" }}>No analyzed candidates yet. Go to Candidates → Analyze.</p>
                 ) : (
+                    <div className={styles.tableWrap}>
                     <table className={styles.table}>
                         <thead>
                             <tr>
@@ -185,6 +186,7 @@ export default function HRDashboard() {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 )}
             </div>
         </div>

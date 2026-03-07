@@ -47,6 +47,7 @@ export default function SchedulePage() {
                         {upcoming.length === 0 ? (
                             <p style={{ color: "var(--text-lite)", fontSize: 14 }}>No upcoming interviews.</p>
                         ) : (
+                            <div className={styles.tableWrap}>
                             <table className={styles.table}>
                                 <thead>
                                     <tr>
@@ -90,6 +91,7 @@ export default function SchedulePage() {
                                     })}
                                 </tbody>
                             </table>
+                            </div>
                         )}
                     </div>
 
@@ -100,6 +102,7 @@ export default function SchedulePage() {
                                 <span>Past Interviews</span>
                                 <span className="ctag pink">{past.length} completed</span>
                             </div>
+                            <div className={styles.tableWrap}>
                             <table className={styles.table}>
                                 <thead>
                                     <tr>
@@ -140,6 +143,7 @@ export default function SchedulePage() {
                                     ))}
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     )}
                 </>

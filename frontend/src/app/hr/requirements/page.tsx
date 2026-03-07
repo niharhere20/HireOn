@@ -126,8 +126,8 @@ export default function RequirementsPage() {
                     position: "fixed", inset: 0, background: "rgba(0,0,0,.4)",
                     display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000,
                 }}>
-                    <div style={{ background: "#fff", borderRadius: 16, padding: 32, width: 480, maxHeight: "90vh", overflowY: "auto" }}>
-                        <h3 style={{ fontWeight: 700, marginBottom: 20 }}>New Requirement</h3>
+                    <div style={{ background: "var(--modal-bg)", borderRadius: 16, padding: 32, width: "min(480px, calc(100vw - 32px))", maxHeight: "90vh", overflowY: "auto" }}>
+                        <h3 style={{ fontWeight: 700, marginBottom: 20, color: "var(--text)" }}>New Requirement</h3>
                         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                             {[
                                 { label: "Job Title", key: "title", type: "text", placeholder: "e.g. Senior React Developer" },

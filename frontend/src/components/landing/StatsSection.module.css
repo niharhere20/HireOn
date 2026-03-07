@@ -1,13 +1,25 @@
 .statsSec {
     position: relative;
     z-index: 1;
-    padding: 80px;
+    padding: 80px 48px;
 }
 
 .inner {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
+}
+
+@media (max-width: 900px) {
+    .statsSec { padding: 60px 24px; }
+    .inner { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+    .statsSec { padding: 40px 16px; }
+    .inner { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card { padding: 28px 20px; }
+    .num { font-size: 44px; }
 }
 
 .card {
@@ -43,7 +55,7 @@
 .card:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-h);
-    background: #fff;
+    background: var(--glass-b);
 }
 
 .num {

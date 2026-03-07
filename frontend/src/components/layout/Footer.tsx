@@ -1,12 +1,13 @@
 export default function Footer() {
     return (
         <footer style={{
-            position: 'relative', zIndex: 1, padding: '60px 80px 40px',
+            position: 'relative', zIndex: 1, padding: 'clamp(40px, 6vw, 60px) clamp(16px, 5vw, 80px) 40px',
             borderTop: '1px solid rgba(108,71,255,.1)',
         }}>
             <div style={{
-                display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr',
-                gap: 60, marginBottom: 48,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                gap: 'clamp(24px, 4vw, 60px)', marginBottom: 48,
             }}>
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
@@ -55,12 +56,13 @@ export default function Footer() {
 
             <div style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                flexWrap: 'wrap', gap: 12,
                 paddingTop: 28, borderTop: '1px solid rgba(108,71,255,.08)',
             }}>
                 <span style={{ fontSize: 13, color: 'var(--text-lite)' }}>
                     © 2025 HireOn Technologies, Inc. All rights reserved.
                 </span>
-                <div style={{ display: 'flex', gap: 10 }}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {['SOC 2', 'GDPR Ready', '99.9% Uptime'].map((badge) => (
                         <span key={badge} style={{
                             padding: '4px 12px', background: 'rgba(108,71,255,.07)',

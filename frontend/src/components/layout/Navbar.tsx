@@ -1,52 +1,84 @@
+"use client";
 import Link from "next/link";
+import { useState } from "react";
+import styles from "./Navbar.module.css";
+import { useThemeStore } from "@/store/theme.store";
+
+const NAV_LINKS = [
+    { label: "How it Works", href: "#howitworks" },
+    { label: "Dashboard",    href: "#dashboard" },
+    { label: "Features",     href: "#" },
+    { label: "Pricing",      href: "#" },
+];
 
 export default function Navbar() {
+    const [menuOpen, setMenuOpen] = useState(false);
+    const { theme, toggle } = useThemeStore();
+
     return (
-        <nav style={{
-            position: 'fixed', top: 18, left: '50%', transform: 'translateX(-50%)',
-            width: 'calc(100% - 64px)', maxWidth: 1200, zIndex: 200,
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '14px 24px', background: 'rgba(255,255,255,.78)',
-            backdropFilter: 'blur(24px) saturate(180%)', border: '1px solid var(--glass-b)',
-            borderRadius: 20, boxShadow: 'var(--shadow), 0 1px 0 rgba(255,255,255,.8) inset',
-        }}>
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-                <div style={{
-                    width: 36, height: 36, background: 'linear-gradient(135deg,var(--violet),var(--pink))',
-                    borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 18, boxShadow: '0 4px 12px rgba(108,71,255,.35)',
-                }}>✦</div>
-                <span style={{
-                    fontSize: 20, fontWeight: 800,
-                    background: 'linear-gradient(135deg,var(--violet),var(--pink))',
-                    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                }}>HireOn</span>
-            </Link>
-
-            <ul style={{ listStyle: 'none', display: 'flex', gap: 4 }}>
-                {[
-                    { label: 'How it Works', href: '#howitworks' },
-                    { label: 'Dashboard', href: '#dashboard' },
-                    { label: 'Features', href: '#' },
-                    { label: 'Pricing', href: '#' },
-                ].map((item) => (
-                    <li key={item.label}>
-                        <a href={item.href} style={{
-                            display: 'block', padding: '8px 16px', textDecoration: 'none',
-                            fontSize: 14, fontWeight: 500, color: 'var(--text-mid)', borderRadius: 10,
-                        }}>{item.label}</a>
-                    </li>
-                ))}
-            </ul>
-
-            <div style={{ display: 'flex', gap: 8 }}>
-                <Link href="/login">
-                    <button className="btn-ghost-nav">Log in</button>
+        <>
+            <nav className={styles.nav}>
+                <Link href="/" className={styles.logo}>
+                    <div className={styles.logoIcon}>✦</div>
+                    <span className={styles.logoText}>HireOn</span>
                 </Link>
-                <Link href="/register">
-                    <button className="btn-pri-nav">Start Free →</button>
-                </Link>
-            </div>
-        </nav>
+
+                <ul className={styles.links}>
+                    {NAV_LINKS.map((item) => (
+                        <li key={item.label}>
+                            <a href={item.href} className={styles.link}>{item.label}</a>
+                        </li>
+                    ))}
+                </ul>
+
+                <div className={styles.actions}>
+                    <button onClick={toggle} className={styles.themeBtn} aria-label="Toggle theme">
+                        {theme === "dark" ? "☀️" : "🌙"}
+                    </button>
+                    <Link href="/login">
+                        <button className="btn-ghost-nav">Log in</button>
+                    </Link>
+                    <Link href="/register">
+                        <button className="btn-pri-nav">Start Free →</button>
+                    </Link>
+                </div>
+
+                <button
+                    className={`${styles.hamburger} ${menuOpen ? styles.hamburgerOpen : ""}`}
+                    onClick={() => setMenuOpen((o) => !o)}
+                    aria-label="Toggle menu"
+                >
+                    <span className={styles.hamLine} />
+                    <span className={styles.hamLine} />
+                    <span className={styles.hamLine} />
+                </button>
+            </nav>
+
+            {menuOpen && (
+                <div className={styles.mobileOverlay}>
+                    <button className={styles.closeBtn} onClick={() => setMenuOpen(false)} aria-label="Close menu">×</button>
+
+                    {NAV_LINKS.map((item) => (
+                        <a key={item.label} href={item.href} className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+                            {item.label}
+                        </a>
+                    ))}
+
+                    <div className={styles.mobileDivider} />
+
+                    <div className={styles.mobileActions}>
+                        <button onClick={toggle} className={styles.themeBtn} aria-label="Toggle theme">
+                            {theme === "dark" ? "☀️" : "🌙"}
+                        </button>
+                        <Link href="/login" onClick={() => setMenuOpen(false)}>
+                            <button className="btn-ghost-nav">Log in</button>
+                        </Link>
+                        <Link href="/register" onClick={() => setMenuOpen(false)}>
+                            <button className="btn-pri-nav">Start Free →</button>
+                        </Link>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
