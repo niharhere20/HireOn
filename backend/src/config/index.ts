@@ -18,9 +18,11 @@ export const config = {
     // Redis
     redisUrl: process.env.REDIS_URL || '',
 
-    // Google Calendar (Phase 2)
+    // Google Calendar
     googleClientId: process.env.GOOGLE_CLIENT_ID || '',
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+    googleRedirectUri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5000/api/auth/google/callback',
+    googleTokens: process.env.GOOGLE_TOKENS || '',
 
     // Email (SMTP)
     smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',

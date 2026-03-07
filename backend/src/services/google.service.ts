@@ -4,14 +4,13 @@ import path from 'path';
 import { config } from '../config';
 
 const TOKENS_FILE = path.join(__dirname, '../../tokens.json');
-const REDIRECT_URI = 'http://localhost:5000/api/auth/google/callback';
 const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
 
 export function createOAuth2Client() {
     return new google.auth.OAuth2(
         config.googleClientId,
         config.googleClientSecret,
-        REDIRECT_URI
+        config.googleRedirectUri
     );
 }
 
@@ -30,6 +29,9 @@ export function saveTokens(tokens: object) {
 
 export function loadTokens(): object | null {
     try {
+        // Prefer env var (used in production/Render where filesystem is ephemeral)
+        if (config.googleTokens) return JSON.parse(config.googleTokens);
+        // Fall back to local file (used in development)
         if (!fs.existsSync(TOKENS_FILE)) return null;
         return JSON.parse(fs.readFileSync(TOKENS_FILE, 'utf-8'));
     } catch {
