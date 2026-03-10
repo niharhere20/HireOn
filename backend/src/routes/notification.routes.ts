@@ -18,7 +18,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 // PATCH /api/notifications/:id/read — mark one as read
 router.patch('/:id/read', async (req: AuthRequest, res: Response) => {
     try {
-        await notifService.markAsRead(req.params.id, req.user!.id);
+        await notifService.markAsRead(req.params.id as string, req.user!.id);
         res.json({ ok: true });
     } catch {
         res.status(500).json({ error: 'Failed to mark notification as read' });
