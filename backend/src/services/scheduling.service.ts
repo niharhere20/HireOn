@@ -50,25 +50,21 @@ export async function scheduleInterview(
     });
     const meetLink = calendarMeetLink ?? generateMeetLink();
 
-    const result = await prisma.$transaction(async (tx) => {
-        const interview = await tx.interview.create({
-            data: { candidateId, interviewerId, hrId, startTime, endTime, meetLink, status: 'SCHEDULED' },
-            include: {
-                candidate: { include: { user: true, assignedRequirement: true } },
-                interviewer: true,
-                hr: true,
-            },
-        });
-
-        await tx.candidate.update({
-            where: { id: candidateId },
-            data: { status: 'SCHEDULED' },
-        });
-
-        return interview;
+    const interview = await prisma.interview.create({
+        data: { candidateId, interviewerId, hrId, startTime, endTime, meetLink, status: 'SCHEDULED' },
+        include: {
+            candidate: { include: { user: true, assignedRequirement: true } },
+            interviewer: true,
+            hr: true,
+        },
     });
 
-    return result;
+    await prisma.candidate.update({
+        where: { id: candidateId },
+        data: { status: 'SCHEDULED' },
+    });
+
+    return interview;
 }
 
 /**

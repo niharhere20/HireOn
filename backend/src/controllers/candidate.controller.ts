@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import * as candidateService from '../services/candidate.service';
 import * as aiService from '../services/ai.service';
+import * as notifService from '../services/notification.service';
 import { CandidateStatus } from '@prisma/client';
 
 export async function getAllCandidates(req: AuthRequest, res: Response) {
@@ -90,9 +91,49 @@ export async function updateStatus(req: AuthRequest, res: Response) {
             candidateId,
             status
         );
+
+        // Fire notification to the candidate
+        const notifMap: Record<string, { title: string; message: string; type: notifService.NotificationType }> = {
+            SHORTLISTED: {
+                type: 'SHORTLISTED',
+                title: 'Shortlisted by HR 🎉',
+                message: 'Congratulations! Your profile has been shortlisted. An interview will be scheduled soon.',
+            },
+            HIRED: {
+                type: 'HIRED',
+                title: 'Offer Extended — Congratulations! 🎊',
+                message: 'You have been selected! Please check your Offer & Documents section for next steps.',
+            },
+        };
+        const notif = notifMap[status];
+        if (notif) {
+            notifService.createNotification(candidate.userId, notif.type, notif.title, notif.message)
+                .catch(() => {});
+        }
+
         res.json(candidate);
     } catch (error) {
         res.status(500).json({ error: 'Failed to update status' });
+    }
+}
+
+export async function updateProfile(req: AuthRequest, res: Response) {
+    try {
+        const candidateId = req.params.candidateId as string;
+        const {
+            headline, phone, location, experience, noticePeriod, currentCtc, expectedCtc,
+            workMode, availability, preferredDays, preferredTimeSlot,
+            availableWeekends, linkedinUrl, githubUrl, customSkills, blackoutDates, otherOffers,
+        } = req.body;
+
+        const candidate = await candidateService.updateCandidateProfile(candidateId, {
+            headline, phone, location, experience, noticePeriod, currentCtc, expectedCtc,
+            workMode, availability, preferredDays, preferredTimeSlot,
+            availableWeekends, linkedinUrl, githubUrl, customSkills, blackoutDates, otherOffers,
+        });
+        res.json(candidate);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update profile' });
     }
 }
 

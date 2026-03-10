@@ -1,236 +1,215 @@
 "use client";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { candidateService, Candidate } from "@/services/candidate.service";
 import styles from "../hr.module.css";
+import { candidateService, Candidate } from "@/services/candidate.service";
 
-const COLUMNS = [
-    { id: "APPLIED", label: "Applied", color: "#6c47ff", bg: "rgba(108,71,255,0.08)" },
-    { id: "SHORTLISTED", label: "Shortlisted", color: "#8b5cf6", bg: "rgba(139,92,246,0.08)" },
-    { id: "SCHEDULED", label: "Scheduled", color: "#06b6d4", bg: "rgba(6,182,212,0.08)" },
-    { id: "INTERVIEWED", label: "Interviewed", color: "#f59e0b", bg: "rgba(245,158,11,0.08)" },
-    { id: "HIRED", label: "Hired", color: "#10b981", bg: "rgba(16,185,129,0.08)" },
-    { id: "REJECTED", label: "Rejected", color: "#ef4444", bg: "rgba(239,68,68,0.08)" },
+const AV_CLASSES = ["cv1", "cv2", "cv3", "cv4", "cv5", "cv6"];
+
+type ColId = "APPLIED" | "SHORTLISTED" | "INTERVIEWED" | "HIRED";
+
+const COLUMNS: { id: ColId; label: string; accentColor: string; targetStatus: string }[] = [
+    { id: "APPLIED",     label: "Applied",      accentColor: "var(--violet)", targetStatus: "APPLIED"      },
+    { id: "SHORTLISTED", label: "Shortlisted",   accentColor: "var(--amber)",  targetStatus: "SHORTLISTED"  },
+    { id: "INTERVIEWED", label: "Interviewed",   accentColor: "var(--teal)",   targetStatus: "INTERVIEWED"  },
+    { id: "HIRED",       label: "Offer / Hired", accentColor: "#10b981",       targetStatus: "HIRED"        },
 ];
 
-const AVATAR_COLORS = [
-    "linear-gradient(135deg,#ddd6fe,#a78bfa)",
-    "linear-gradient(135deg,#fce7f3,#f9a8d4)",
-    "linear-gradient(135deg,#d1fae5,#6ee7b7)",
-    "linear-gradient(135deg,#fef3c7,#fde68a)",
-    "linear-gradient(135deg,#e0e7ff,#a5b4fc)",
-];
+function getColId(status: string): ColId {
+    if (status === "APPLIED")     return "APPLIED";
+    if (status === "SHORTLISTED") return "SHORTLISTED";
+    if (status === "SCHEDULED" || status === "INTERVIEWED") return "INTERVIEWED";
+    if (status === "HIRED")       return "HIRED";
+    return "APPLIED";
+}
 
 export default function PipelinePage() {
     const qc = useQueryClient();
-    const [dragging, setDragging] = useState<string | null>(null);
-    const [dragOver, setDragOver] = useState<string | null>(null);
+    const [draggingId, setDraggingId] = useState<string | null>(null);
+    const [overCol, setOverCol] = useState<ColId | null>(null);
 
     const { data: candidates = [], isLoading } = useQuery({
         queryKey: ["candidates"],
         queryFn: () => candidateService.getAll(),
     });
 
-    const updateStatus = useMutation({
-        mutationFn: ({ id, status }: { id: string; status: string }) =>
-            candidateService.updateStatus(id, status),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ["candidates"] }),
+    const updateMutation = useMutation({
+        mutationFn: ({ candidateId, status }: { candidateId: string; status: string }) =>
+            candidateService.updateStatus(candidateId, status),
+        onMutate: async ({ candidateId, status }) => {
+            // Optimistic update
+            await qc.cancelQueries({ queryKey: ["candidates"] });
+            const prev = qc.getQueryData<Candidate[]>(["candidates"]);
+            qc.setQueryData<Candidate[]>(["candidates"], (old) =>
+                (old ?? []).map((c) => c.id === candidateId ? { ...c, status: status as Candidate["status"] } : c)
+            );
+            return { prev };
+        },
+        onError: (_err, _vars, ctx) => {
+            if (ctx?.prev) qc.setQueryData(["candidates"], ctx.prev);
+        },
+        onSettled: () => qc.invalidateQueries({ queryKey: ["candidates"] }),
     });
 
-    const byStatus = (status: string) =>
-        candidates.filter((c) => c.status === status);
+    const colCards: Record<ColId, Candidate[]> = {
+        APPLIED:     candidates.filter(c => getColId(c.status) === "APPLIED"),
+        SHORTLISTED: candidates.filter(c => getColId(c.status) === "SHORTLISTED"),
+        INTERVIEWED: candidates.filter(c => getColId(c.status) === "INTERVIEWED"),
+        HIRED:       candidates.filter(c => getColId(c.status) === "HIRED"),
+    };
 
-    const handleDragStart = (e: React.DragEvent, candidateId: string) => {
-        setDragging(candidateId);
+    function handleDragStart(e: React.DragEvent, candidateId: string) {
+        e.dataTransfer.setData("candidateId", candidateId);
         e.dataTransfer.effectAllowed = "move";
-    };
+        setDraggingId(candidateId);
+    }
 
-    const handleDrop = (e: React.DragEvent, targetStatus: string) => {
-        e.preventDefault();
-        if (!dragging) return;
-        const candidate = candidates.find((c) => c.id === dragging);
-        if (candidate && candidate.status !== targetStatus) {
-            updateStatus.mutate({ id: dragging, status: targetStatus });
-        }
-        setDragging(null);
-        setDragOver(null);
-    };
+    function handleDragEnd() {
+        setDraggingId(null);
+        setOverCol(null);
+    }
 
-    const handleDragOver = (e: React.DragEvent, colId: string) => {
+    function handleDragOver(e: React.DragEvent, colId: ColId) {
         e.preventDefault();
         e.dataTransfer.dropEffect = "move";
-        setDragOver(colId);
-    };
+        setOverCol(colId);
+    }
+
+    function handleDrop(e: React.DragEvent, col: typeof COLUMNS[number]) {
+        e.preventDefault();
+        const candidateId = e.dataTransfer.getData("candidateId");
+        setDraggingId(null);
+        setOverCol(null);
+        if (!candidateId) return;
+        const cand = candidates.find(c => c.id === candidateId);
+        if (!cand) return;
+        const newColId = col.id;
+        if (getColId(cand.status) === newColId) return; // no change
+        updateMutation.mutate({ candidateId, status: col.targetStatus });
+    }
+
+    if (isLoading) {
+        return <p style={{ color: "var(--text-lite)", fontSize: 14 }}>Loading...</p>;
+    }
 
     return (
         <div>
-            <div className={styles.header}>
-                <div>
-                    <h1 className={styles.pageTitle}>Pipeline</h1>
-                    <p className={styles.pageSub}>Drag candidates across stages to update their status</p>
-                </div>
-                <div className={styles.headerActions}>
-                    <span style={{ fontSize: 13, color: "var(--text-mid)" }}>
-                        {candidates.length} total candidates
-                    </span>
-                </div>
+            <div className={styles.pageHeader}>
+                <h1 className={styles.pageTitle}>Pipeline</h1>
+                <p className={styles.pageSub}>
+                    Drag candidates across stages — status updates automatically.
+                </p>
             </div>
 
-            {isLoading ? (
-                <p style={{ color: "var(--text-lite)", fontSize: 14 }}>Loading pipeline...</p>
-            ) : (
-                <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(6, 1fr)",
-                    gap: 12,
-                    overflowX: "auto",
-                    paddingBottom: 16,
-                }}>
-                    {COLUMNS.map((col) => {
-                        const cards = byStatus(col.id);
-                        const isOver = dragOver === col.id;
-                        return (
-                            <div
-                                key={col.id}
-                                onDragOver={(e) => handleDragOver(e, col.id)}
-                                onDragLeave={() => setDragOver(null)}
-                                onDrop={(e) => handleDrop(e, col.id)}
-                                style={{
-                                    minWidth: 200,
-                                    background: isOver ? col.bg : "var(--kpi-bg, #fff)",
-                                    border: `1px solid ${isOver ? col.color : "var(--table-border, rgba(108,71,255,0.1))"}`,
-                                    borderRadius: 14,
-                                    padding: 12,
-                                    transition: "all 0.2s",
-                                    minHeight: 400,
-                                }}
-                            >
-                                {/* Column Header */}
-                                <div style={{
-                                    display: "flex", alignItems: "center",
-                                    justifyContent: "space-between", marginBottom: 12,
-                                    padding: "6px 8px", borderRadius: 8,
-                                    background: col.bg,
-                                }}>
-                                    <span style={{ fontSize: 12, fontWeight: 700, color: col.color }}>
-                                        {col.label}
-                                    </span>
-                                    <span style={{
-                                        fontSize: 11, fontWeight: 700, background: col.color,
-                                        color: "#fff", borderRadius: 20, padding: "1px 7px",
-                                    }}>
+            <div className={styles.kanban}>
+                {COLUMNS.map((col) => {
+                    const cards = colCards[col.id];
+                    const isOver = overCol === col.id;
+
+                    return (
+                        <div
+                            key={col.id}
+                            className={styles.kCol}
+                            style={{
+                                outline: isOver ? `2px dashed ${col.accentColor}` : undefined,
+                                background: isOver ? `rgba(108,71,255,0.03)` : undefined,
+                                transition: "outline 0.15s, background 0.15s",
+                            }}
+                            onDragOver={(e) => handleDragOver(e, col.id)}
+                            onDragLeave={() => setOverCol(null)}
+                            onDrop={(e) => handleDrop(e, col)}
+                        >
+                            <div className={styles.kHeader}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    <span className={styles.kTitle}>{col.label}</span>
+                                    <span
+                                        className={styles.kCount}
+                                        style={{ background: col.accentColor }}
+                                    >
                                         {cards.length}
                                     </span>
                                 </div>
-
-                                {/* Cards */}
-                                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                                    {cards.map((c, idx) => (
-                                        <CandidateCard
-                                            key={c.id}
-                                            candidate={c}
-                                            avatarBg={AVATAR_COLORS[idx % AVATAR_COLORS.length]}
-                                            isDragging={dragging === c.id}
-                                            onDragStart={(e) => handleDragStart(e, c.id)}
-                                            onDragEnd={() => setDragging(null)}
-                                        />
-                                    ))}
-                                    {cards.length === 0 && (
-                                        <div style={{
-                                            textAlign: "center", padding: "32px 8px",
-                                            color: "var(--text-lite)", fontSize: 12,
-                                            border: "1.5px dashed var(--table-border)",
-                                            borderRadius: 10, opacity: isOver ? 0.5 : 1,
-                                        }}>
-                                            Drop here
-                                        </div>
-                                    )}
-                                </div>
+                                <div
+                                    className={styles.kLine}
+                                    style={{ background: col.accentColor }}
+                                />
                             </div>
-                        );
-                    })}
-                </div>
-            )}
-        </div>
-    );
-}
 
-function CandidateCard({
-    candidate, avatarBg, isDragging, onDragStart, onDragEnd,
-}: {
-    candidate: Candidate;
-    avatarBg: string;
-    isDragging: boolean;
-    onDragStart: (e: React.DragEvent) => void;
-    onDragEnd: () => void;
-}) {
-    return (
-        <div
-            draggable
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-            style={{
-                background: "var(--card-bg, #fff)",
-                border: "1px solid var(--table-border, rgba(108,71,255,0.1))",
-                borderRadius: 10,
-                padding: "10px 12px",
-                cursor: "grab",
-                opacity: isDragging ? 0.4 : 1,
-                transition: "opacity 0.2s, box-shadow 0.2s",
-                boxShadow: isDragging ? "none" : "0 2px 8px rgba(108,71,255,0.07)",
-            }}
-        >
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <div style={{
-                    width: 30, height: 30, borderRadius: "50%",
-                    background: avatarBg, display: "flex",
-                    alignItems: "center", justifyContent: "center",
-                    fontSize: 13, fontWeight: 700, flexShrink: 0,
-                }}>
-                    {candidate.user.name.charAt(0)}
-                </div>
-                <div>
-                    <div style={{ fontSize: 12, fontWeight: 700, lineHeight: 1.3, color: "var(--text)" }}>
-                        {candidate.user.name}
-                    </div>
-                    <div style={{ fontSize: 10, color: "var(--text-lite)" }}>
-                        {candidate.user.email.split("@")[0]}
-                    </div>
-                </div>
+                            <div className={styles.kCards}>
+                                {cards.length === 0 ? (
+                                    <div style={{
+                                        padding: "28px 12px",
+                                        textAlign: "center",
+                                        color: "var(--text-lite)",
+                                        fontSize: 12,
+                                        border: `1.5px dashed var(--card-border)`,
+                                        borderRadius: 10,
+                                        marginTop: 4,
+                                    }}>
+                                        Drop here
+                                    </div>
+                                ) : (
+                                    cards.map((c, idx) => {
+                                        const avCls = AV_CLASSES[idx % AV_CLASSES.length];
+                                        const matchScore = c.aiProfile?.matchScore ?? null;
+                                        const role = c.assignedRequirement?.title || "General Applicant";
+                                        const isDragging = draggingId === c.id;
+
+                                        return (
+                                            <div
+                                                key={c.id}
+                                                className={styles.kCardItem}
+                                                draggable
+                                                onDragStart={(e) => handleDragStart(e, c.id)}
+                                                onDragEnd={handleDragEnd}
+                                                style={{
+                                                    cursor: "grab",
+                                                    opacity: isDragging ? 0.4 : 1,
+                                                    transform: isDragging ? "scale(0.97)" : undefined,
+                                                    transition: "opacity 0.15s, transform 0.15s",
+                                                    userSelect: "none",
+                                                }}
+                                            >
+                                                <div className={styles.kCardName}>{c.user.name}</div>
+                                                <div className={styles.kCardRole}>{role}</div>
+                                                <div className={styles.kCardFooter}>
+                                                    {c.status === "HIRED" ? (
+                                                        <span style={{
+                                                            background: "rgba(16,185,129,.12)",
+                                                            color: "#10b981",
+                                                            fontSize: 10,
+                                                            padding: "2px 8px",
+                                                            borderRadius: 20,
+                                                            fontWeight: 700,
+                                                        }}>
+                                                            Hired
+                                                        </span>
+                                                    ) : (
+                                                        <span
+                                                            className={styles.kCardScore}
+                                                            style={{ background: col.accentColor }}
+                                                        >
+                                                            {matchScore !== null ? `${matchScore}%` : "—"}
+                                                        </span>
+                                                    )}
+                                                    <div className={`${styles.kCardAv} ${styles[avCls as keyof typeof styles]}`}>
+                                                        {c.user.name.charAt(0).toUpperCase()}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
-            {candidate.aiProfile ? (
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{
-                        flex: 1, height: 4, background: "rgba(108,71,255,0.1)",
-                        borderRadius: 2, marginRight: 8, overflow: "hidden",
-                    }}>
-                        <div style={{
-                            height: "100%", borderRadius: 2,
-                            background: "linear-gradient(90deg,#6c47ff,#ff6bc6)",
-                            width: `${candidate.aiProfile.matchScore}%`,
-                        }} />
-                    </div>
-                    <span style={{
-                        fontSize: 11, fontWeight: 700,
-                        color: candidate.aiProfile.matchScore >= 80 ? "#10b981" : candidate.aiProfile.matchScore >= 60 ? "#f59e0b" : "#ef4444",
-                    }}>
-                        {candidate.aiProfile.matchScore}%
-                    </span>
-                </div>
-            ) : (
-                <div style={{ fontSize: 10, color: "var(--text-lite)", fontStyle: "italic" }}>Not analyzed</div>
-            )}
-
-            {candidate.assignedRequirement && (
-                <div style={{
-                    marginTop: 6, fontSize: 10, color: "var(--text-mid)",
-                    background: "rgba(108,71,255,0.06)", borderRadius: 6,
-                    padding: "2px 7px", display: "inline-block",
-                }}>
-                    {candidate.assignedRequirement.title}
-                </div>
-            )}
+            {/* Legend */}
+            <div style={{ marginTop: 16, fontSize: 12, color: "var(--text-lite)", display: "flex", alignItems: "center", gap: 6 }}>
+                <span>✋</span> Drag any card to move candidate to a different stage
+            </div>
         </div>
     );
 }

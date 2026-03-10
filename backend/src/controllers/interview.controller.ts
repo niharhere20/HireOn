@@ -3,6 +3,8 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 import * as schedulingService from '../services/scheduling.service';
 import * as aiService from '../services/ai.service';
 import { sendInterviewScheduledEmails } from '../services/email.service';
+import * as notifService from '../services/notification.service';
+import prisma from '../config/database';
 
 export async function scheduleInterview(req: AuthRequest, res: Response) {
     try {
@@ -25,6 +27,16 @@ export async function scheduleInterview(req: AuthRequest, res: Response) {
             new Date(startTime),
             durationMinutes || 45
         );
+
+        // Notify candidate about scheduled interview (non-blocking)
+        const dateStr = interview.startTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        const timeStr = interview.startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        notifService.createNotification(
+            interview.candidate.userId,
+            'INTERVIEW_SCHEDULED',
+            'Interview Scheduled 📅',
+            `Your interview is scheduled for ${dateStr} at ${timeStr} with ${interview.interviewer.name}.${interview.meetLink ? ' Join via Google Meet.' : ''}`
+        ).catch(() => {});
 
         // Send email notifications (non-blocking)
         sendInterviewScheduledEmails({
@@ -62,6 +74,18 @@ export async function getInterviews(req: AuthRequest, res: Response) {
             filters.hrId = req.user.id;
         } else if (req.user.role === 'INTERVIEWER') {
             filters.interviewerId = req.user.id;
+        } else if (req.user.role === 'CANDIDATE') {
+            const candidateRecord = await prisma.candidate.findUnique({
+                where: { userId: req.user.id },
+                select: { id: true },
+            });
+            if (candidateRecord) {
+                filters.candidateId = candidateRecord.id;
+            } else {
+                // Candidate record not found — return empty list
+                res.json([]);
+                return;
+            }
         }
 
         if (status) filters.status = status;

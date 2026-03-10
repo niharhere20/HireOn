@@ -72,6 +72,35 @@ export async function updateCandidateStatus(
 }
 
 /**
+ * Update candidate profile fields
+ */
+export async function updateCandidateProfile(candidateId: string, data: {
+    headline?: string;
+    phone?: string;
+    location?: string;
+    experience?: string;
+    noticePeriod?: string;
+    currentCtc?: string;
+    expectedCtc?: string;
+    workMode?: string;
+    availability?: string;
+    preferredDays?: string;
+    preferredTimeSlot?: string;
+    availableWeekends?: boolean;
+    linkedinUrl?: string;
+    githubUrl?: string;
+    customSkills?: string[];
+    blackoutDates?: string;
+    otherOffers?: string[];
+}) {
+    return prisma.candidate.update({
+        where: { id: candidateId },
+        data,
+        include: { user: true, aiProfile: true },
+    });
+}
+
+/**
  * Assign candidate to a tech requirement
  */
 export async function assignToRequirement(
@@ -148,5 +177,5 @@ export async function autoShortlistForRequirement(requirementId: string) {
         })
     );
 
-    return prisma.$transaction(updates);
+    return Promise.all(updates);
 }

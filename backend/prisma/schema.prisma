@@ -37,13 +37,16 @@ enum InterviewStatus {
 // ─── MODELS ──────────────────────────────────────
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String
-  name         String
-  role         Role
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                String   @id @default(uuid())
+  email             String   @unique
+  passwordHash      String
+  name              String
+  role              Role
+  profilePictureUrl String?
+  resetCode       String?
+  resetCodeExpiry DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   // Relations
   candidate          Candidate?
@@ -52,6 +55,7 @@ model User {
   interviewsAsViewer Interview[]        @relation("InterviewerInterviews")
   techRequirements   TechRequirement[]
   auditLogs          AuditLog[]
+  notifications      Notification[]
 
   @@map("users")
 }
@@ -65,12 +69,33 @@ model Candidate {
   status                CandidateStatus @default(APPLIED)
   assignedRequirementId String?
   assignedRequirement   TechRequirement? @relation(fields: [assignedRequirementId], references: [id])
+
+  // Profile fields
+  headline              String?
+  phone                 String?
+  location              String?
+  experience            String?
+  noticePeriod          String?
+  currentCtc            String?
+  expectedCtc           String?
+  workMode              String?
+  availability          String?
+  preferredDays         String?
+  preferredTimeSlot     String?
+  availableWeekends     Boolean  @default(false)
+  linkedinUrl           String?
+  githubUrl             String?
+  customSkills          Json?    // string[]
+  blackoutDates         String?
+  otherOffers           Json?    // string[]
+
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
 
   // Relations
-  aiProfile  AIProfile?
-  interviews Interview[]
+  aiProfile    AIProfile?
+  interviews   Interview[]
+  applications Application[]
 
   @@index([status])
   @@map("candidates")
@@ -111,7 +136,8 @@ model TechRequirement {
   updatedAt      DateTime @updatedAt
 
   // Relations
-  candidates Candidate[]
+  candidates   Candidate[]
+  applications Application[]
 
   @@map("tech_requirements")
 }
@@ -167,4 +193,35 @@ model AuditLog {
   @@index([actorId])
   @@index([entityType, entityId])
   @@map("audit_logs")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  type      String   // WELCOME, RESUME_UPLOADED, SHORTLISTED, INTERVIEW_SCHEDULED, INTERVIEW_COMPLETED, HIRED, AI_ANALYZED
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+model Application {
+  id            String          @id @default(uuid())
+  candidateId   String
+  candidate     Candidate       @relation(fields: [candidateId], references: [id])
+  requirementId String
+  requirement   TechRequirement @relation(fields: [requirementId], references: [id])
+  status        String          @default("APPLIED") // APPLIED, UNDER_REVIEW, SHORTLISTED, REJECTED, HIRED
+  appliedAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@unique([candidateId, requirementId])
+  @@index([candidateId])
+  @@index([requirementId])
+  @@map("applications")
 }

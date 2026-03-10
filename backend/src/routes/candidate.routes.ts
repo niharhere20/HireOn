@@ -34,6 +34,13 @@ router.patch(
     candidateCtrl.updateStatus as any
 );
 
+// Update candidate profile fields (candidate themselves)
+router.patch(
+    '/:candidateId/profile',
+    authorize('CANDIDATE') as any,
+    candidateCtrl.updateProfile as any
+);
+
 // Auto-shortlist for a requirement (HR only)
 router.post(
     '/auto-shortlist/:requirementId',

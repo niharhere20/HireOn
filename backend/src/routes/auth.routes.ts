@@ -1,10 +1,13 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'node:crypto';
 import prisma from '../config/database';
 import { config } from '../config';
 import { authenticate, AuthRequest } from '../middlewares/auth.middleware';
 import { createOAuth2Client, getAuthUrl, saveTokens, isAuthorized } from '../services/google.service';
+import { createNotification } from '../services/notification.service';
+import { sendPasswordResetCode } from '../services/email.service';
 
 const router = Router();
 
@@ -46,11 +49,17 @@ router.post('/register', async (req: Request, res: Response) => {
             data: { email, passwordHash, name, role },
         });
 
-        // If user is a candidate, create candidate profile
+        // If user is a candidate, create candidate profile + welcome notification
         if (role === 'CANDIDATE') {
             await prisma.candidate.create({
                 data: { userId: user.id },
             });
+            createNotification(
+                user.id,
+                'WELCOME',
+                'Welcome to HireOn!',
+                'Your account has been created. Upload your resume to get started and let our AI find your perfect match.'
+            ).catch(() => {});
         }
 
         // Generate JWT
@@ -281,6 +290,133 @@ router.get('/google/callback', async (req: Request, res: Response) => {
  */
 router.get('/google/status', authenticate as any, async (_req: AuthRequest, res: Response) => {
     res.json({ connected: isAuthorized() });
+});
+
+/**
+ * POST /api/auth/forgot-password
+ * Check email, generate 6-digit code, send it
+ */
+router.post('/forgot-password', async (req: Request, res: Response) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            res.status(400).json({ error: 'Email is required' });
+            return;
+        }
+
+        const user = await prisma.user.findUnique({ where: { email } });
+
+        // Always return 200 to prevent email enumeration
+        if (!user) {
+            res.json({ message: 'If that email is registered, a code has been sent.' });
+            return;
+        }
+
+        // Generate 6-digit code
+        const code = String(Math.floor(100000 + crypto.randomInt(900000)));
+        const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+
+        // Hash it before storing
+        const hashed = await bcrypt.hash(code, 10);
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { resetCode: hashed, resetCodeExpiry: expiry },
+        });
+
+        await sendPasswordResetCode(user.email, code, user.name);
+        if (process.env.NODE_ENV === 'development') console.log(`[DEV] Password reset code for ${user.email}: ${code}`);
+
+        res.json({ message: 'If that email is registered, a code has been sent.' });
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({ error: 'Failed to send reset code' });
+    }
+});
+
+/**
+ * POST /api/auth/verify-reset-code
+ * Verify the 6-digit code; if valid return a short-lived reset token
+ */
+router.post('/verify-reset-code', async (req: Request, res: Response) => {
+    try {
+        const { email, code } = req.body;
+        if (!email || !code) {
+            res.status(400).json({ error: 'Email and code are required' });
+            return;
+        }
+
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user?.resetCode || !user?.resetCodeExpiry) {
+            res.status(400).json({ error: 'Invalid or expired code' });
+            return;
+        }
+
+        if (new Date() > user.resetCodeExpiry) {
+            res.status(400).json({ error: 'Code has expired. Please request a new one.' });
+            return;
+        }
+
+        const valid = await bcrypt.compare(code, user.resetCode);
+        if (!valid) {
+            res.status(400).json({ error: 'Incorrect code. Please try again.' });
+            return;
+        }
+
+        // Issue a short-lived reset token (10 min)
+        const resetToken = jwt.sign(
+            { userId: user.id, purpose: 'password_reset' },
+            config.jwtSecret,
+            { expiresIn: '10m' }
+        );
+
+        res.json({ resetToken });
+    } catch (error) {
+        console.error('Verify reset code error:', error);
+        res.status(500).json({ error: 'Failed to verify code' });
+    }
+});
+
+/**
+ * POST /api/auth/reset-password
+ * Use resetToken + new password to update credentials
+ */
+router.post('/reset-password', async (req: Request, res: Response) => {
+    try {
+        const { resetToken, newPassword } = req.body;
+        if (!resetToken || !newPassword) {
+            res.status(400).json({ error: 'Reset token and new password are required' });
+            return;
+        }
+        if (newPassword.length < 8) {
+            res.status(400).json({ error: 'Password must be at least 8 characters' });
+            return;
+        }
+
+        let payload: { userId: string; purpose: string };
+        try {
+            payload = jwt.verify(resetToken, config.jwtSecret) as typeof payload;
+        } catch {
+            res.status(400).json({ error: 'Invalid or expired reset token. Please start over.' });
+            return;
+        }
+
+        if (payload.purpose !== 'password_reset') {
+            res.status(400).json({ error: 'Invalid token' });
+            return;
+        }
+
+        const hash = await bcrypt.hash(newPassword, 12);
+        await prisma.user.update({
+            where: { id: payload.userId },
+            data: { passwordHash: hash, resetCode: null, resetCodeExpiry: null },
+        });
+
+        res.json({ message: 'Password reset successfully. You can now log in.' });
+    } catch (error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({ error: 'Failed to reset password' });
+    }
 });
 
 export default router;

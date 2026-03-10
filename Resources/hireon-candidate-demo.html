@@ -366,7 +366,7 @@ tbody tr:hover td{background:rgba(124,58,237,.025)}
   <div class="sb-item" onclick="nav('notifications',this)"><span class="sb-ico">🔔</span>Notifications<span class="sb-badge">3</span></div>
   <div class="sb-item" onclick="nav('prep',this)"><span class="sb-ico">🎯</span>Interview Prep Hub</div>
   <div class="sb-item" onclick="nav('openings',this)"><span class="sb-ico">🏢</span>Current Openings<span class="sb-badge new">12</span></div>
-  <div class="sb-item" onclick="nav('offer',this)" id="sb-offer" style="opacity:0.5;cursor:not-allowed" title="Available after Final Round"><span class="sb-ico">📄</span>Offer & Documents<span style="margin-left:auto;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(107,114,128,.12);color:#9ca3af">🔒</span></div>
+  <div class="sb-item" onclick="nav('offer',this)" id="sb-offer" style="display:none"><span class="sb-ico">📄</span>Offer & Documents<span class="sb-badge green">New!</span></div>
   <div style="margin-top:auto;padding:16px 10px 4px">
     <div style="background:linear-gradient(135deg,rgba(124,58,237,.09),rgba(236,72,153,.05));border:1px solid rgba(124,58,237,.14);border-radius:14px;padding:16px;text-align:center">
       <div style="font-size:26px;margin-bottom:8px">🚀</div>
@@ -1150,9 +1150,15 @@ tbody tr:hover td{background:rgba(124,58,237,.025)}
 <div class="toast" id="toast"><span class="toast-ico" id="toast-ico"></span><span id="toast-msg"></span></div>
 
 <script>
-// OFFER LOCK — only accessible after final round cleared
-// OFFER_UNLOCKED = false means candidate hasn't cleared final round yet
+// OFFER LOCK — completely hidden until candidate clears final round
 const OFFER_UNLOCKED = false;
+
+// Show offer sidebar item only if unlocked
+(function(){
+  if(OFFER_UNLOCKED){
+    document.getElementById('sb-offer').style.display='flex';
+  }
+})();
 
 // FLASHCARD QUESTIONS
 const FLASHES=[
@@ -1209,30 +1215,13 @@ function addSkill(){
 
 // NAV
 function nav(id,el){
-  if(id==='offer' && !OFFER_UNLOCKED){
-    showToast('🔒','Offer & Documents will be unlocked once you clear the Final Round.');
-    return;
-  }
+  if(id==='offer' && !OFFER_UNLOCKED) return;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
   document.querySelectorAll('.sb-item').forEach(s=>s.classList.remove('active'));
   if(el) el.classList.add('active');
   document.getElementById('main').scrollTop=0;
 }
-// Unlock offer sidebar item visually when OFFER_UNLOCKED is true
-(function(){
-  if(OFFER_UNLOCKED){
-    const sb=document.getElementById('sb-offer');
-    sb.style.opacity='1';
-    sb.style.cursor='pointer';
-    sb.title='';
-    sb.querySelector('span:last-child').remove();
-    const badge=document.createElement('span');
-    badge.className='sb-badge green';
-    badge.textContent='New!';
-    sb.appendChild(badge);
-  }
-})();
 
 // ADD OTHER OFFER
 function addOtherOffer(){

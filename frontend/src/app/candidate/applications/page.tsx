@@ -1,99 +1,157 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import { interviewService } from "@/services/interview.service";
-import { authService } from "@/services/auth.service";
 import styles from "../candidate.module.css";
+import api from "@/lib/api";
+import { interviewService } from "@/services/interview.service";
 
-const STATUS_MAP: Record<string, { label: string; cls: string }> = {
-    APPLIED: { label: "Applied", cls: "st-new" },
-    SHORTLISTED: { label: "Shortlisted", cls: "st-short" },
-    SCHEDULED: { label: "Scheduled", cls: "st-sched" },
-    INTERVIEWED: { label: "Interviewed", cls: "st-sched" },
-    HIRED: { label: "Hired", cls: "st-short" },
-    REJECTED: { label: "Rejected", cls: "st-review" },
-};
+interface MeResponse {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    candidate?: {
+        id: string;
+        status: string;
+        resumeUrl: string | null;
+        aiProfile?: {
+            matchScore: number;
+            hireProbability: number;
+            experienceYears: number;
+            seniorityLevel: string;
+            extractedSkills: string[];
+            inferredSkills: string[];
+        } | null;
+    } | null;
+}
 
-function formatDateTime(iso: string) {
-    return new Date(iso).toLocaleString("en-US", {
-        weekday: "short", month: "short", day: "numeric",
-        hour: "2-digit", minute: "2-digit",
-    });
+function statusChipClass(status: string) {
+    switch (status) {
+        case "HIRED":       return `${styles.chip} ${styles.chipGreen}`;
+        case "SCHEDULED":
+        case "INTERVIEWED": return `${styles.chip} ${styles.chipTeal}`;
+        case "SHORTLISTED": return `${styles.chip} ${styles.chipViolet}`;
+        case "REJECTED":    return `${styles.chip} ${styles.chipAmber}`;
+        default:            return `${styles.chip} ${styles.chipViolet}`;
+    }
+}
+
+function statusLabel(status: string) {
+    switch (status) {
+        case "APPLIED":     return "Under Review";
+        case "SHORTLISTED": return "Shortlisted";
+        case "SCHEDULED":   return "Interview Scheduled";
+        case "INTERVIEWED": return "Interviewed";
+        case "HIRED":       return "Hired";
+        case "REJECTED":    return "Rejected";
+        default:            return status;
+    }
 }
 
 export default function ApplicationsPage() {
-    const { data: me } = useQuery({ queryKey: ["me"], queryFn: authService.me });
-
-    const { data: interviews = [], isLoading } = useQuery({
-        queryKey: ["my-interviews"],
-        queryFn: () => interviewService.getAll(),
-        enabled: !!me,
+    const { data: me, isLoading: meLoading } = useQuery<MeResponse>({
+        queryKey: ["me"],
+        queryFn: () => api.get("/api/auth/me").then((r) => r.data),
     });
+
+    const { data: interviews = [], isLoading: ivLoading } = useQuery({
+        queryKey: ["interviews"],
+        queryFn: () => interviewService.getAll(),
+    });
+
+    const isLoading = meLoading || ivLoading;
+
+    const candidate = me?.candidate;
+    const completedInterviews = interviews.filter((iv) => iv.status === "COMPLETED");
+    const scheduledInterviews = interviews.filter((iv) => iv.status === "SCHEDULED");
+
+    // Determine current stage label
+    const stageLabel = (() => {
+        if (!candidate) return "—";
+        const s = candidate.status;
+        if (s === "SCHEDULED" && scheduledInterviews.length > 0) {
+            return `Round ${completedInterviews.length + 1} — Scheduled`;
+        }
+        if (s === "INTERVIEWED") return `Round ${completedInterviews.length} — Completed`;
+        return statusLabel(s);
+    })();
+
+    if (isLoading) {
+        return (
+            <p style={{ color: "var(--text-lite)", fontSize: 14, padding: "20px 0" }}>Loading...</p>
+        );
+    }
 
     return (
         <div>
-            <div className={styles.header}>
+            {/* Header */}
+            <div className={styles.pageHeader}>
                 <div>
-                    <h1 className={styles.pageTitle}>My Applications</h1>
-                    <p className={styles.pageSub}>Track your application status and interview history</p>
+                    <h1 className={styles.pageTitle}>📋 My Applications</h1>
+                    <p className={styles.pageSub}>Track the status of every role you have applied for</p>
                 </div>
+                <span className={`${styles.chip} ${styles.chipViolet}`}>
+                    <span className={styles.chipDot} />{candidate ? "1" : "0"} Application{candidate ? "" : "s"}
+                </span>
             </div>
 
-            {isLoading ? (
-                <p style={{ color: "var(--text-lite)", fontSize: 14 }}>Loading...</p>
-            ) : interviews.length === 0 ? (
-                <div className={styles.card} style={{ textAlign: "center", padding: 48 }}>
-                    <div style={{ fontSize: 32, marginBottom: 12 }}>📋</div>
-                    <p style={{ color: "var(--text-mid)", fontSize: 14 }}>No interviews scheduled yet. Stay tuned!</p>
-                </div>
-            ) : (
-                <div className={styles.card}>
-                    <div className={styles.cardHead}>
-                        <span>Interview History</span>
-                        <span className="ctag pink">{interviews.length} total</span>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                        {interviews.map((iv) => {
-                            const ivStatus = iv.status === "SCHEDULED" ? "SCHEDULED" : iv.status === "COMPLETED" ? "INTERVIEWED" : "APPLIED";
-                            const st = STATUS_MAP[ivStatus] ?? STATUS_MAP["APPLIED"];
-                            const duration = Math.round((new Date(iv.endTime).getTime() - new Date(iv.startTime).getTime()) / 60000);
-                            return (
-                                <div key={iv.id} style={{ border: "1px solid rgba(108,71,255,.08)", borderRadius: 14, padding: "20px 24px" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                                        <div>
-                                            <div style={{ fontWeight: 700, fontSize: 15 }}>
-                                                Interview with {iv.interviewer.name}
-                                            </div>
-                                            <div style={{ fontSize: 13, color: "var(--text-mid)", marginTop: 2 }}>
-                                                🕐 {formatDateTime(iv.startTime)} · {duration} min
-                                            </div>
-                                        </div>
-                                        <span className={`status-chip ${st.cls}`}>
-                                            <span className="st-dot" />{st.label}
+            <div className={styles.card} style={{ padding: 0, overflow: "hidden" }}>
+                <table className={styles.appTable}>
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>AI Match</th>
+                            <th>Stage</th>
+                            <th>Interviews</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {candidate ? (
+                            <tr>
+                                <td>
+                                    <span style={{ fontWeight: 600, color: "var(--text)", fontSize: 13 }}>
+                                        Application on Record
+                                    </span>
+                                </td>
+                                <td>
+                                    {candidate.aiProfile ? (
+                                        <span style={{ fontWeight: 700, color: "var(--violet)" }}>
+                                            {candidate.aiProfile.matchScore}%
                                         </span>
-                                    </div>
-                                    {iv.meetLink && iv.status === "SCHEDULED" && (
-                                        <a
-                                            href={iv.meetLink}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="btn-pri"
-                                            style={{ display: "inline-block", padding: "8px 20px", fontSize: 13, textDecoration: "none", borderRadius: 10, marginTop: 4 }}
-                                        >
-                                            Join Meeting →
-                                        </a>
+                                    ) : (
+                                        <span style={{ color: "var(--text-lite)" }}>—</span>
                                     )}
-                                    {iv.status === "COMPLETED" && iv.aiSummary && (
-                                        <div style={{ background: "rgba(108,71,255,.05)", borderRadius: 10, padding: "12px 14px", marginTop: 8 }}>
-                                            <div style={{ fontSize: 12, color: "var(--text-lite)", marginBottom: 4 }}>🧠 AI Feedback Summary</div>
-                                            <p style={{ fontSize: 13, color: "var(--text-mid)" }}>{iv.aiSummary}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
+                                </td>
+                                <td>{stageLabel}</td>
+                                <td>
+                                    {completedInterviews.length} done
+                                    {scheduledInterviews.length > 0 && ` · ${scheduledInterviews.length} upcoming`}
+                                </td>
+                                <td>
+                                    <span className={statusChipClass(candidate.status)}>
+                                        <span className={styles.chipDot} />
+                                        {statusLabel(candidate.status)}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button className={`${styles.btn} ${styles.btnGhost} ${styles.btnXs}`}>
+                                        View Details
+                                    </button>
+                                </td>
+                            </tr>
+                        ) : (
+                            <tr>
+                                <td colSpan={6}>
+                                    <p style={{ color: "var(--text-lite)", fontSize: 14, padding: "12px 0" }}>
+                                        No data yet.
+                                    </p>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

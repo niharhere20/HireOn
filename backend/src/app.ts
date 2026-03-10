@@ -11,6 +11,8 @@ import candidateRoutes from './routes/candidate.routes';
 import interviewRoutes from './routes/interview.routes';
 import requirementRoutes from './routes/requirement.routes';
 import uploadRoutes from './routes/upload.routes';
+import notificationRoutes from './routes/notification.routes';
+import applicationRoutes from './routes/application.routes';
 
 const app = express();
 
@@ -39,6 +41,8 @@ app.use('/api/candidates', candidateRoutes);
 app.use('/api/interviews', interviewRoutes);
 app.use('/api/requirements', requirementRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/applications', applicationRoutes);
 
 // ─── ERROR HANDLER ──────────────────────────────
 app.use(errorHandler as any);

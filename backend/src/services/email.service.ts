@@ -38,67 +38,114 @@ function htmlEmail(recipientName: string, data: InterviewEmailData) {
         (data.endTime.getTime() - data.startTime.getTime()) / 60000
     );
 
+    const detailRow = (label: string, value: string) => `
+      <tr>
+        <td style="padding:10px 0;border-bottom:1px solid rgba(108,71,255,0.07);width:38%;vertical-align:middle;">
+          <span style="font-size:12px;font-weight:700;color:#9689bb;text-transform:uppercase;letter-spacing:0.6px;">${label}</span>
+        </td>
+        <td style="padding:10px 0 10px 16px;border-bottom:1px solid rgba(108,71,255,0.07);vertical-align:middle;">
+          <span style="font-size:13px;font-weight:600;color:#1a1040;">${value}</span>
+        </td>
+      </tr>`;
+
     return `<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><style>
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0eeff; margin: 0; padding: 32px 0; }
-  .wrap { max-width: 560px; margin: 0 auto; }
-  .header { background: linear-gradient(135deg, #6c47ff, #ff6bc6); border-radius: 14px 14px 0 0; padding: 28px 32px; color: #fff; }
-  .logo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
-  .title { font-size: 18px; font-weight: 700; opacity: 0.95; }
-  .body { background: #ffffff; padding: 32px; border-radius: 0 0 14px 14px; border: 1px solid rgba(108,71,255,0.1); border-top: none; }
-  .greeting { font-size: 15px; color: #1a1040; margin-bottom: 16px; }
-  .detail-box { background: #f8f5ff; border-radius: 10px; padding: 20px 24px; margin: 20px 0; border: 1px solid rgba(108,71,255,0.1); }
-  .detail-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(108,71,255,0.06); font-size: 13px; }
-  .detail-row:last-child { border-bottom: none; }
-  .detail-label { color: #9689bb; font-weight: 600; }
-  .detail-value { color: #1a1040; font-weight: 600; text-align: right; }
-  .meet-btn { display: block; text-align: center; background: linear-gradient(135deg, #6c47ff, #ff6bc6); color: #fff !important; text-decoration: none; border-radius: 10px; padding: 14px 28px; font-weight: 700; font-size: 15px; margin: 24px 0; }
-  .footer { font-size: 12px; color: #9689bb; text-align: center; margin-top: 20px; }
-</style></head>
-<body>
-<div class="wrap">
-  <div class="header">
-    <div class="logo">HireOn</div>
-    <div class="title">Interview Scheduled</div>
-  </div>
-  <div class="body">
-    <div class="greeting">Hi <strong>${recipientName}</strong>,</div>
-    <p style="font-size:14px;color:#5a4e7a;line-height:1.6;margin-bottom:0">
-      An interview has been scheduled on the HireOn platform. Here are the details:
-    </p>
-    <div class="detail-box">
-      <div class="detail-row">
-        <span class="detail-label">Candidate</span>
-        <span class="detail-value">${data.candidateName}</span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Interviewer</span>
-        <span class="detail-value">${data.interviewerName}</span>
-      </div>
-      ${data.requirementTitle ? `<div class="detail-row">
-        <span class="detail-label">Position</span>
-        <span class="detail-value">${data.requirementTitle}</span>
-      </div>` : ''}
-      <div class="detail-row">
-        <span class="detail-label">Date & Time</span>
-        <span class="detail-value">${dateStr}</span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Duration</span>
-        <span class="detail-value">${durationMins} minutes</span>
-      </div>
-    </div>
-    <a href="${data.meetLink}" class="meet-btn">Join Google Meet</a>
-    <p style="font-size:13px;color:#9689bb;word-break:break-all">
-      Or copy the link: <a href="${data.meetLink}" style="color:#6c47ff">${data.meetLink}</a>
-    </p>
-    <div class="footer">
-      This email was sent by HireOn — Intelligent Hiring Platform<br>
-      Please do not reply to this email.
-    </div>
-  </div>
-</div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Interview Scheduled — Hireon</title>
+</head>
+<body style="margin:0;padding:0;background:#f0eeff;font-family:'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+
+        <!-- HEADER -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#6c47ff,#ff6bc6);border-radius:16px 16px 0 0;padding:28px 36px;">
+            <table cellpadding="0" cellspacing="0" width="100%">
+              <tr>
+                <td>
+                  <!-- Logo row -->
+                  <table cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="width:36px;height:36px;background:rgba(255,255,255,0.22);border-radius:10px;text-align:center;vertical-align:middle;">
+                        <span style="font-size:18px;font-weight:900;color:#fff;line-height:36px;display:block;">H</span>
+                      </td>
+                      <td style="padding-left:10px;vertical-align:middle;">
+                        <span style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Hireon</span>
+                      </td>
+                    </tr>
+                  </table>
+                  <p style="margin:12px 0 0;font-size:15px;font-weight:600;color:rgba(255,255,255,0.92);">Interview Scheduled</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- BODY -->
+        <tr>
+          <td style="background:#ffffff;padding:36px 36px 28px;border:1px solid rgba(108,71,255,0.10);border-top:none;border-radius:0 0 16px 16px;">
+
+            <p style="margin:0 0 6px;font-size:15px;color:#1a1040;">Hi <strong>${recipientName}</strong>,</p>
+            <p style="margin:0 0 24px;font-size:14px;color:#5a4e7a;line-height:1.65;">
+              An interview has been scheduled on the Hireon platform. Here are the details:
+            </p>
+
+            <!-- Detail box -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f5ff;border-radius:12px;border:1px solid rgba(108,71,255,0.10);padding:4px 20px;border-spacing:0;">
+              <tr><td style="padding:0 4px;">
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  ${detailRow('Candidate', data.candidateName)}
+                  ${detailRow('Interviewer', data.interviewerName)}
+                  ${data.requirementTitle ? detailRow('Position', data.requirementTitle) : ''}
+                  ${detailRow('Date &amp; Time', dateStr)}
+                  <tr>
+                    <td style="padding:10px 0;width:38%;vertical-align:middle;">
+                      <span style="font-size:12px;font-weight:700;color:#9689bb;text-transform:uppercase;letter-spacing:0.6px;">Duration</span>
+                    </td>
+                    <td style="padding:10px 0 10px 16px;vertical-align:middle;">
+                      <span style="font-size:13px;font-weight:600;color:#1a1040;">${durationMins} minutes</span>
+                    </td>
+                  </tr>
+                </table>
+              </td></tr>
+            </table>
+
+            <!-- CTA button -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 18px;">
+              <tr>
+                <td align="center">
+                  <a href="${data.meetLink}" style="display:inline-block;background:linear-gradient(135deg,#6c47ff,#ff6bc6);color:#fff;text-decoration:none;border-radius:10px;padding:14px 40px;font-size:15px;font-weight:700;letter-spacing:0.2px;">
+                    Join Google Meet ↗
+                  </a>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:0 0 24px;font-size:12px;color:#9689bb;word-break:break-all;text-align:center;">
+              Or copy the link: <a href="${data.meetLink}" style="color:#6c47ff;text-decoration:none;">${data.meetLink}</a>
+            </p>
+
+            <!-- Footer -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(108,71,255,0.08);padding-top:20px;">
+              <tr>
+                <td align="center">
+                  <p style="margin:0;font-size:12px;color:#b0a4cc;">
+                    This email was sent by <strong style="color:#6c47ff;">Hireon</strong> — AI-powered hiring platform<br>
+                    Please do not reply to this email.
+                  </p>
+                </td>
+              </tr>
+            </table>
+
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
 </body></html>`;
 }
 
@@ -110,7 +157,7 @@ function textEmail(recipientName: string, data: InterviewEmailData) {
     return [
         `Hi ${recipientName},`,
         '',
-        'An interview has been scheduled on HireOn.',
+        'An interview has been scheduled on Hireon.',
         '',
         `Candidate:   ${data.candidateName}`,
         `Interviewer: ${data.interviewerName}`,
@@ -119,8 +166,86 @@ function textEmail(recipientName: string, data: InterviewEmailData) {
         `Duration:    ${durationMins} minutes`,
         `Google Meet: ${data.meetLink}`,
         '',
-        '— HireOn Team',
+        '— Hireon Team',
     ].filter((l) => l !== null).join('\n');
+}
+
+export async function sendPasswordResetCode(toEmail: string, code: string, userName: string) {
+    const transport = createTransport();
+    if (!transport) {
+        console.warn('[email] SMTP not configured — skipping password reset email');
+        return;
+    }
+
+    await transport.sendMail({
+        from: config.smtpFrom,
+        to: toEmail,
+        subject: 'Your Hireon Password Reset Code',
+        html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Password Reset — Hireon</title>
+</head>
+<body style="margin:0;padding:0;background:#0f0e1a;font-family:'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+    <tr><td align="center">
+      <table width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background:#1a1930;border-radius:16px;border:1px solid rgba(108,71,255,0.2);">
+
+        <!-- HEADER -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#6c47ff,#ff6bc6);border-radius:16px 16px 0 0;padding:28px 32px;">
+            <table cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="width:36px;height:36px;background:rgba(255,255,255,0.22);border-radius:10px;text-align:center;vertical-align:middle;">
+                  <span style="font-size:18px;font-weight:900;color:#fff;line-height:36px;display:block;">H</span>
+                </td>
+                <td style="padding-left:10px;vertical-align:middle;">
+                  <span style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Hireon</span>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:10px 0 0;font-size:14px;font-weight:600;color:rgba(255,255,255,0.85);">Password Reset</p>
+          </td>
+        </tr>
+
+        <!-- BODY -->
+        <tr>
+          <td style="padding:36px 32px;">
+            <p style="color:#c9c6e0;font-size:15px;margin:0 0 16px;">Hi <strong style="color:#fff;">${userName}</strong>,</p>
+            <p style="color:#c9c6e0;font-size:14px;margin:0 0 28px;line-height:1.65;">
+              We received a request to reset your Hireon password. Use the verification code below — it expires in <strong style="color:#fff;">15 minutes</strong>.
+            </p>
+
+            <!-- Code box -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(108,71,255,0.12);border:2px solid rgba(108,71,255,0.35);border-radius:14px;margin:0 0 28px;">
+              <tr>
+                <td style="padding:28px;text-align:center;">
+                  <p style="margin:0 0 12px;font-size:11px;font-weight:700;color:#9490c0;text-transform:uppercase;letter-spacing:2px;">Your Reset Code</p>
+                  <p style="margin:0;font-size:44px;font-weight:900;letter-spacing:14px;color:#fff;font-family:'Courier New',monospace;">${code}</p>
+                </td>
+              </tr>
+            </table>
+
+            <p style="color:#9490c0;font-size:12px;margin:0;line-height:1.65;">
+              If you didn't request this, you can safely ignore this email — your password won't change.
+            </p>
+          </td>
+        </tr>
+
+        <!-- FOOTER -->
+        <tr>
+          <td style="padding:18px 32px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+            <p style="color:#4a4860;font-size:12px;margin:0;">© 2026 <strong style="color:#7c5cff;">Hireon</strong> · AI-powered hiring platform</p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body></html>`,
+    });
 }
 
 export async function sendInterviewScheduledEmails(data: InterviewEmailData) {

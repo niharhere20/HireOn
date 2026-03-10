@@ -1,168 +1,338 @@
 "use client";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { authService } from "@/services/auth.service";
-import { interviewService } from "@/services/interview.service";
 import styles from "./candidate.module.css";
+import api from "@/lib/api";
+import { interviewService } from "@/services/interview.service";
+import { useAuthStore } from "@/store/auth.store";
 
-function formatDateTime(iso: string) {
-    return new Date(iso).toLocaleString("en-US", {
-        weekday: "short", month: "short", day: "numeric",
-        hour: "2-digit", minute: "2-digit",
-    });
+interface MeResponse {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    candidate?: {
+        id: string;
+        status: string;
+        resumeUrl: string | null;
+        aiProfile?: {
+            matchScore: number;
+            hireProbability: number;
+            experienceYears: number;
+            seniorityLevel: string;
+            extractedSkills: string[];
+            inferredSkills: string[];
+        } | null;
+    } | null;
 }
 
-function ivStatusClass(status: string): string {
-    if (status === "SCHEDULED") return "st-sched";
-    if (status === "COMPLETED") return "st-short";
-    return "st-review";
+const STEPS = [
+    { label: "Applied"     },
+    { label: "Shortlisted" },
+    { label: "Round 1"     },
+    { label: "Round 2"     },
+    { label: "Round 3"     },
+    { label: "HR Round"    },
+    { label: "Offer"       },
+];
+
+function stepClass(state: string) {
+    if (state === "done")   return styles.tStepDone;
+    if (state === "active") return styles.tStepActive;
+    return styles.tStepPending;
+}
+
+function stepIcon(state: string, idx: number) {
+    if (state === "done")   return "✓";
+    if (state === "active") return "●";
+    return String(idx + 1);
 }
 
 export default function CandidateDashboard() {
-    const { data: me } = useQuery({ queryKey: ["me"], queryFn: authService.me });
+    const authUser = useAuthStore((s) => s.user);
 
-    const { data: interviews = [], isLoading } = useQuery({
-        queryKey: ["my-interviews"],
-        queryFn: () => interviewService.getAll(),
-        enabled: !!me,
+    const { data: me, isLoading: meLoading } = useQuery<MeResponse>({
+        queryKey: ["me"],
+        queryFn: () => api.get("/api/auth/me").then((r) => r.data),
     });
 
-    const upcoming = interviews.filter((i) => i.status === "SCHEDULED");
-    const completed = interviews.filter((i) => i.status === "COMPLETED");
-    const nextInterview = upcoming[0] ?? null;
+    const { data: interviews = [], isLoading: ivLoading } = useQuery({
+        queryKey: ["interviews"],
+        queryFn: () => interviewService.getAll(),
+    });
 
-    const meUser = me as unknown as {
-        candidate?: {
-            resumeUrl?: string;
-            aiProfile?: { matchScore: number; hireProbability: number; experienceYears: number; seniorityLevel: string; extractedSkills: string[] };
-        };
+    const { data: myApplications = [] } = useQuery<{ id: string }[]>({
+        queryKey: ["my-applications"],
+        queryFn: () => api.get("/api/applications/mine").then((r) => r.data),
+    });
+
+    const hasResume = !!me?.candidate?.resumeUrl;
+    const status = me?.candidate?.status || "APPLIED";
+    const completedInterviews = interviews.filter((iv) => iv.status === "COMPLETED");
+    const scheduledInterviews = interviews.filter((iv) => iv.status === "SCHEDULED");
+
+    const getStepState = (idx: number): "done" | "active" | "pending" => {
+        if (status === "HIRED") return "done";
+        if (idx === 0) {
+            return status !== "APPLIED" ? "done" : interviews.length === 0 ? "active" : "done";
+        }
+        if (idx === 1) {
+            if (["SHORTLISTED", "SCHEDULED", "INTERVIEWED", "HIRED"].includes(status)) {
+                return status === "SHORTLISTED" ? "active" : "done";
+            }
+            return "pending";
+        }
+        // Round steps (indices 2-6)
+        const roundIdx = idx - 2;
+        if (completedInterviews.length > roundIdx) return "done";
+        if (scheduledInterviews.length > roundIdx) return "active";
+        return "pending";
     };
 
-    const candidate = meUser?.candidate;
-    const ai = candidate?.aiProfile;
+    // Determine active step label for header chip
+    const activeStepIdx = STEPS.findIndex((_, i) => getStepState(i) === "active");
+    const activeStepLabel = activeStepIdx >= 0 ? STEPS[activeStepIdx].label : status;
+
+    // Next scheduled interview (soonest)
+    const nextInterview = scheduledInterviews
+        .slice()
+        .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())[0];
+
+    // KPI values
+    const matchScore = me?.candidate?.aiProfile?.matchScore;
+    const roundsPassed = completedInterviews.length;
+    const totalRounds = interviews.length;
+
+    // Round history rows: show all interviews + pending placeholder steps
+    const now = new Date();
+
+    const kpis = [
+        {
+            icon: "🧠",
+            ki: styles.ki1,
+            val: matchScore !== undefined ? `${matchScore}%` : "—",
+            lbl: "AI Match Score",
+            delta: matchScore !== undefined ? "Top 5%" : "N/A",
+            dc: styles.kdUp,
+        },
+        {
+            icon: "🏆",
+            ki: styles.ki2,
+            val: totalRounds > 0 ? `${roundsPassed} of ${totalRounds}` : String(roundsPassed),
+            lbl: "Rounds Passed",
+            delta: "On track",
+            dc: styles.kdNeu,
+        },
+        {
+            icon: "📅",
+            ki: styles.ki3,
+            val: String(interviews.length),
+            lbl: "Total Interviews",
+            delta: status,
+            dc: styles.kdNeu,
+        },
+        {
+            icon: "💼",
+            ki: styles.ki4,
+            val: String(myApplications.length),
+            lbl: "Active Applications",
+            delta: myApplications.length > 0 ? "Applied" : "None yet",
+            dc: styles.kdAmber,
+        },
+    ];
+
+    // Build round history from real interviews sorted by startTime
+    const sortedInterviews = interviews
+        .slice()
+        .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+
+    if (meLoading || ivLoading) {
+        return (
+            <p style={{ color: "var(--text-lite)", fontSize: 14, padding: "20px 0" }}>Loading...</p>
+        );
+    }
+
+    // No resume uploaded yet — show get-started prompt
+    if (!hasResume) {
+        return (
+            <div>
+                <div className={styles.pageHeader}>
+                    <div>
+                        <h1 className={styles.pageTitle}>Your Application Journey 🗺️</h1>
+                        <p className={styles.pageSub}>
+                            Welcome back, <strong>{me?.name || authUser?.name || "Candidate"}</strong>
+                        </p>
+                    </div>
+                </div>
+                <div className={styles.stageDetailCard} style={{ textAlign: "center", padding: "48px 32px" }}>
+                    <div style={{ fontSize: 48, marginBottom: 16 }}>📄</div>
+                    <div className={styles.stageTitle} style={{ marginBottom: 10 }}>No Application Yet</div>
+                    <div className={styles.stageSub} style={{ marginBottom: 24 }}>
+                        Upload your resume to get started. Our AI will analyze your profile and match you to open roles.
+                    </div>
+                    <Link href="/candidate/resume" className={`${styles.btn} ${styles.btnTeal} ${styles.btnSm}`}>
+                        Upload Resume →
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    // Resume uploaded but no applications yet
+    if (myApplications.length === 0) {
+        return (
+            <div>
+                <div className={styles.pageHeader}>
+                    <div>
+                        <h1 className={styles.pageTitle}>Your Application Journey 🗺️</h1>
+                        <p className={styles.pageSub}>
+                            Welcome back, <strong>{me?.name || authUser?.name || "Candidate"}</strong>
+                        </p>
+                    </div>
+                </div>
+                <div className={styles.stageDetailCard} style={{ textAlign: "center", padding: "48px 32px" }}>
+                    <div style={{ fontSize: 48, marginBottom: 16 }}>🚀</div>
+                    <div className={styles.stageTitle} style={{ marginBottom: 10 }}>You haven&apos;t applied yet</div>
+                    <div className={styles.stageSub} style={{ marginBottom: 24 }}>
+                        Your resume is ready! Browse current openings and apply to positions that match your profile.
+                    </div>
+                    <Link href="/candidate/jobs" className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSm}`}>
+                        Browse Openings →
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div>
-            <div className={styles.header}>
+            {/* Header */}
+            <div className={styles.pageHeader}>
                 <div>
-                    <h1 className={styles.pageTitle}>My Dashboard</h1>
-                    <p className={styles.pageSub}>Track your applications and upcoming interviews</p>
+                    <h1 className={styles.pageTitle}>Your Application Journey 🗺️</h1>
+                    <p className={styles.pageSub}>
+                        Welcome back, <strong>{me?.name || authUser?.name || "Candidate"}</strong>
+                        &nbsp;&nbsp;
+                        <span className={`${styles.chip} ${styles.chipTeal}`}>
+                            <span className={styles.chipDot} />
+                            {activeStepLabel}
+                            {getStepState(activeStepIdx) === "active" ? " — In Progress" : ""}
+                        </span>
+                    </p>
                 </div>
             </div>
 
-            <div className={styles.statsRow}>
-                {[
-                    { icon: "📋", val: interviews.length.toString(), label: "Total Interviews" },
-                    { icon: "📅", val: upcoming.length.toString(), label: "Upcoming" },
-                    { icon: "✅", val: completed.length.toString(), label: "Completed" },
-                    { icon: "🧠", val: ai ? ai.seniorityLevel : "—", label: "Experience Level" },
-                ].map((s) => (
-                    <div className="kpi" key={s.label}>
-                        <div className="kpi-icon">{s.icon}</div>
-                        <div className="kpi-val">{s.val}</div>
-                        <div className="kpi-lbl">{s.label}</div>
+            {/* Tracker */}
+            <div className={styles.card} style={{ marginBottom: 20 }}>
+                <div className={styles.cardTitle}>Application Tracker</div>
+                <div className={styles.trackerWrap}>
+                    <div className={styles.trackerLine} />
+                    <div className={styles.trackerProgress} />
+                    <div className={styles.trackerSteps}>
+                        {STEPS.map((step, i) => {
+                            const state = getStepState(i);
+                            return (
+                                <div key={step.label} className={`${styles.tStep} ${stepClass(state)}`}>
+                                    <div className={styles.tStepDot}>{stepIcon(state, i)}</div>
+                                    <div className={styles.tStepLabel}>{step.label}</div>
+                                </div>
+                            );
+                        })}
                     </div>
-                ))}
+                </div>
             </div>
 
+            {/* Current Stage Detail */}
+            <div className={styles.stageDetailCard}>
+                <div className={styles.stageLabel}>Current Stage</div>
+                <div className={styles.stageTitle}>
+                    {nextInterview
+                        ? `Round ${scheduledInterviews.indexOf(nextInterview) + completedInterviews.length + 1} — Interview`
+                        : status === "HIRED"
+                        ? "Offer Extended"
+                        : status === "SHORTLISTED"
+                        ? "Shortlisted — Awaiting Schedule"
+                        : `Status: ${status}`}
+                </div>
+                <div className={styles.stageSub}>
+                    {nextInterview
+                        ? `Your next interview is scheduled for ${new Date(nextInterview.startTime).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })} with ${nextInterview.interviewer.name}.`
+                        : completedInterviews.length > 0
+                        ? `You have completed ${completedInterviews.length} interview${completedInterviews.length > 1 ? "s" : ""} so far.`
+                        : "Your application is being reviewed. Stay tuned for updates."}
+                </div>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <Link href="/candidate/schedule" className={`${styles.btn} ${styles.btnTeal} ${styles.btnSm}`}>
+                        📅 View Interview Details
+                    </Link>
+                </div>
+            </div>
+
+            {/* Grid2 — Round History + KPIs */}
             <div className={styles.grid2}>
-                {/* Resume & AI Profile */}
+                {/* Round History */}
                 <div className={styles.card}>
-                    <div className={styles.cardHead}>
-                        <span>My Resume</span>
-                        {candidate?.resumeUrl ? <span className="ctag teal">Uploaded</span> : <span className="ctag">Not uploaded</span>}
-                    </div>
-
-                    {candidate?.resumeUrl ? (
-                        <div className={styles.resumeBox}>
-                            <div className={styles.resumeIcon}>📄</div>
-                            <div className={styles.resumeInfo}>
-                                <div className={styles.resumeName}>{candidate.resumeUrl}</div>
-                                <div className={styles.resumeMeta}>{ai ? "AI analyzed ✓" : "Pending analysis"}</div>
-                            </div>
-                        </div>
+                    <div className={styles.cardTitle}>Round History</div>
+                    {sortedInterviews.length === 0 ? (
+                        <p style={{ color: "var(--text-lite)", fontSize: 14, padding: "12px 0" }}>No data yet.</p>
                     ) : (
-                        <div style={{ textAlign: "center", padding: "20px 0" }}>
-                            <a href="/candidate/resume" className="btn-pri" style={{ padding: "10px 24px", fontSize: 13, textDecoration: "none", borderRadius: 10 }}>
-                                Upload Resume →
-                            </a>
-                        </div>
-                    )}
-
-                    {ai && (
-                        <div className={styles.aiSummary}>
-                            <h3 className={styles.aiTitle}>🧠 AI Profile Summary</h3>
-                            <div className={styles.aiGrid}>
-                                <div className={styles.aiItem}>
-                                    <div className={styles.aiLbl}>Experience</div>
-                                    <div className={styles.aiVal}>{ai.experienceYears} years</div>
+                        sortedInterviews.map((iv, idx) => {
+                            const isCompleted = iv.status === "COMPLETED";
+                            const isScheduled = iv.status === "SCHEDULED";
+                            const isToday = new Date(iv.startTime).toDateString() === now.toDateString();
+                            const dot = isCompleted ? "done" : isScheduled ? "active" : "pend";
+                            const dateStr = new Date(iv.startTime).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                            });
+                            const sub = isCompleted
+                                ? "Completed ✅"
+                                : isScheduled
+                                ? isToday
+                                    ? "Today"
+                                    : "Scheduled"
+                                : "Cancelled";
+                            return (
+                                <div key={iv.id} className={styles.rhItem}>
+                                    <div
+                                        className={styles.rhDot}
+                                        style={{
+                                            background:
+                                                dot === "done"
+                                                    ? "#10b981"
+                                                    : dot === "active"
+                                                    ? "var(--teal)"
+                                                    : "var(--card-border)",
+                                            boxShadow:
+                                                dot === "active"
+                                                    ? "0 0 0 3px rgba(0,212,200,0.2)"
+                                                    : undefined,
+                                        }}
+                                    />
+                                    <div>
+                                        <div className={styles.rhName}>Round {idx + 1} — Interview</div>
+                                        <div className={styles.rhDate}>
+                                            {dateStr} · {sub}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className={styles.aiItem}>
-                                    <div className={styles.aiLbl}>Seniority</div>
-                                    <div className={styles.aiVal}>{ai.seniorityLevel}</div>
-                                </div>
-                            </div>
-                            <div className={styles.aiSkills}>
-                                {ai.extractedSkills.map((s) => (
-                                    <span className="skill-pill" key={s}>{s}</span>
-                                ))}
-                            </div>
-                        </div>
+                            );
+                        })
                     )}
                 </div>
 
-                {/* Right Column */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                    {nextInterview && (
-                        <div className={styles.card}>
-                            <div className={styles.cardHead}>
-                                <span>Next Interview</span>
-                                <span className="ctag">Upcoming</span>
+                {/* KPI Grid */}
+                <div className={styles.grid2} style={{ alignContent: "start" }}>
+                    {kpis.map((k) => (
+                        <div key={k.lbl} className={styles.kpiCard}>
+                            <div className={styles.kpiTop}>
+                                <div className={`${styles.kpiIcon} ${k.ki}`}>{k.icon}</div>
+                                <span className={`${styles.kpiDelta} ${k.dc}`}>{k.delta}</span>
                             </div>
-                            <div className={styles.nextIv}>
-                                <div className={styles.nextIvRole}>Interview with {nextInterview.interviewer.name}</div>
-                                <div className={styles.nextIvMeta}>
-                                    {Math.round((new Date(nextInterview.endTime).getTime() - new Date(nextInterview.startTime).getTime()) / 60000)} min session
-                                </div>
-                                <div className={styles.nextIvTime}>🕐 {formatDateTime(nextInterview.startTime)}</div>
-                                {nextInterview.meetLink && (
-                                    <a href={nextInterview.meetLink} target="_blank" rel="noreferrer" className="btn-pri"
-                                        style={{ marginTop: 16, padding: "10px 24px", fontSize: 13, display: "inline-block", textDecoration: "none", borderRadius: 10 }}>
-                                        Join Meeting →
-                                    </a>
-                                )}
-                            </div>
+                            <div className={styles.kpiVal}>{k.val}</div>
+                            <div className={styles.kpiLbl}>{k.lbl}</div>
                         </div>
-                    )}
-
-                    {isLoading ? (
-                        <p style={{ color: "var(--text-lite)", fontSize: 14 }}>Loading...</p>
-                    ) : (
-                        <div className={styles.card}>
-                            <div className={styles.cardHead}>
-                                <span>My Interviews</span>
-                                <span className="ctag pink">{interviews.length}</span>
-                            </div>
-                            {interviews.length === 0 ? (
-                                <p style={{ color: "var(--text-lite)", fontSize: 14 }}>No interviews yet. Make sure you have a resume uploaded and availability set.</p>
-                            ) : (
-                                <div className={styles.appList}>
-                                    {interviews.map((iv) => (
-                                        <div className={styles.appRow} key={iv.id}>
-                                            <div>
-                                                <div className={styles.appRole}>Interview with {iv.interviewer.name}</div>
-                                                <div className={styles.appCompany}>{formatDateTime(iv.startTime)}</div>
-                                            </div>
-                                            <div className={styles.appRight}>
-                                                <span className={`status-chip ${ivStatusClass(iv.status)}`}>
-                                                    <span className="st-dot" />{iv.status.charAt(0) + iv.status.slice(1).toLowerCase()}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    )}
+                    ))}
                 </div>
             </div>
         </div>

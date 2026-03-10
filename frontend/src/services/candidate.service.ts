@@ -51,6 +51,9 @@ export const candidateService = {
     updateResumeText: (candidateId: string, resumeUrl: string, resumeText: string) =>
         api.put(`/api/candidates/${candidateId}/resume`, { resumeUrl, resumeText }).then((r) => r.data),
 
+    updateProfile: (candidateId: string, data: Record<string, unknown>) =>
+        api.patch(`/api/candidates/${candidateId}/profile`, data).then((r) => r.data),
+
     getMine: () =>
         api.get<{ id: string }>('/api/auth/me').then((r) => r.data),
 };

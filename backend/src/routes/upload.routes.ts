@@ -1,15 +1,16 @@
 import { Router } from 'express';
 import multer from 'multer';
-import path from 'path';
+import path from 'node:path';
+import os from 'node:os';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
-import { uploadResume } from '../controllers/upload.controller';
+import { uploadResume, uploadAvatar } from '../controllers/upload.controller';
 
 const router = Router();
 
 // Store uploaded files temporarily in /tmp
 const storage = multer.diskStorage({
     destination: (_req, _file, cb) => {
-        cb(null, require('os').tmpdir());
+        cb(null, os.tmpdir());
     },
     filename: (_req, file, cb) => {
         const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
@@ -36,6 +37,24 @@ const upload = multer({
     limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
 });
 
+const imageFilter = (
+    _req: Express.Request,
+    file: Express.Multer.File,
+    cb: multer.FileFilterCallback
+) => {
+    if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+    } else {
+        cb(new Error('Only image files are allowed'));
+    }
+};
+
+const avatarUpload = multer({
+    storage,
+    fileFilter: imageFilter,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+});
+
 // POST /api/upload/resume/:candidateId — Candidate only
 router.post(
     '/resume/:candidateId',
@@ -43,6 +62,14 @@ router.post(
     authorize('CANDIDATE') as any,
     upload.single('resume'),
     uploadResume as any
+);
+
+// POST /api/upload/avatar — any authenticated user
+router.post(
+    '/avatar',
+    authenticate as any,
+    avatarUpload.single('avatar'),
+    uploadAvatar as any
 );
 
 export default router;
