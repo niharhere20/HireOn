@@ -1,12 +1,37 @@
-import { Resend } from 'resend';
 import { config } from '../config';
 
-function getResend(): Resend | null {
-    if (!config.resendApiKey) {
-        console.warn('[email] RESEND_API_KEY not set — skipping emails');
-        return null;
+async function sendBrevo(opts: {
+    to: string;
+    toName: string;
+    subject: string;
+    html: string;
+    text?: string;
+}) {
+    if (!config.brevoApiKey) {
+        console.warn('[email] BREVO_API_KEY not set — skipping email');
+        return;
     }
-    return new Resend(config.resendApiKey);
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+            'accept': 'application/json',
+            'api-key': config.brevoApiKey,
+            'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+            sender: { name: config.emailFromName, email: config.emailFrom },
+            to: [{ email: opts.to, name: opts.toName }],
+            subject: opts.subject,
+            htmlContent: opts.html,
+            textContent: opts.text,
+        }),
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(`Brevo error ${res.status}: ${(err as any).message ?? res.statusText}`);
+    }
+    const result = await res.json();
+    console.log(`[email] Sent to ${opts.to} — messageId: ${(result as any).messageId}`);
 }
 
 export interface InterviewEmailData {
@@ -165,12 +190,9 @@ function textEmail(recipientName: string, data: InterviewEmailData) {
 }
 
 export async function sendPasswordResetCode(toEmail: string, code: string, userName: string) {
-    const resend = getResend();
-    if (!resend) return;
-
-    await resend.emails.send({
-        from: config.emailFrom,
+    await sendBrevo({
         to: toEmail,
+        toName: userName,
         subject: 'Your Hireon Password Reset Code',
         html: `<!DOCTYPE html>
 <html lang="en">
@@ -239,9 +261,6 @@ export async function sendPasswordResetCode(toEmail: string, code: string, userN
 }
 
 export async function sendInterviewScheduledEmails(data: InterviewEmailData) {
-    const resend = getResend();
-    if (!resend) return;
-
     const recipients = [
         { name: data.candidateName, email: data.candidateEmail, role: 'Candidate' },
         { name: data.interviewerName, email: data.interviewerEmail, role: 'Interviewer' },
@@ -250,16 +269,15 @@ export async function sendInterviewScheduledEmails(data: InterviewEmailData) {
 
     for (const r of recipients) {
         try {
-            await resend.emails.send({
-                from: config.emailFrom,
+            await sendBrevo({
                 to: r.email,
+                toName: r.name,
                 subject: `Interview Scheduled — ${data.candidateName} on ${formatDate(data.startTime)}`,
                 text: textEmail(r.name, data),
                 html: htmlEmail(r.name, data),
             });
-            console.log(`[email] Sent to ${r.role}: ${r.email}`);
         } catch (err) {
-            console.error(`[email] Failed to send to ${r.email}:`, err);
+            console.error(`[email] Failed to send to ${r.role} (${r.email}):`, err);
         }
     }
 }

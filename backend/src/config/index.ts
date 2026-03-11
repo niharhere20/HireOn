@@ -25,6 +25,7 @@ export const config = {
     googleTokens: process.env.GOOGLE_TOKENS || '',
 
     // Email
-    resendApiKey: process.env.RESEND_API_KEY || '',
-    emailFrom: process.env.EMAIL_FROM || 'Hireon <onboarding@resend.dev>',
+    brevoApiKey: process.env.BREVO_API_KEY || '',
+    emailFrom: process.env.EMAIL_FROM || 'niharhere20@gmail.com',
+    emailFromName: process.env.EMAIL_FROM_NAME || 'Hireon',
 } as const;
