@@ -1,17 +1,12 @@
-import nodemailer from 'nodemailer';
-import type SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { Resend } from 'resend';
 import { config } from '../config';
 
-function createTransport() {
-    if (!config.smtpUser || !config.smtpPass) return null;
-    const options: any = {
-        host: config.smtpHost,
-        port: config.smtpPort,
-        secure: config.smtpPort === 465,
-        family: 4,
-        auth: { user: config.smtpUser, pass: config.smtpPass },
-    };
-    return nodemailer.createTransport(options as SMTPTransport.Options);
+function getResend(): Resend | null {
+    if (!config.resendApiKey) {
+        console.warn('[email] RESEND_API_KEY not set — skipping emails');
+        return null;
+    }
+    return new Resend(config.resendApiKey);
 }
 
 export interface InterviewEmailData {
@@ -69,7 +64,6 @@ function htmlEmail(recipientName: string, data: InterviewEmailData) {
             <table cellpadding="0" cellspacing="0" width="100%">
               <tr>
                 <td>
-                  <!-- Logo row -->
                   <table cellpadding="0" cellspacing="0">
                     <tr>
                       <td style="width:36px;height:36px;background:rgba(255,255,255,0.22);border-radius:10px;text-align:center;vertical-align:middle;">
@@ -96,7 +90,6 @@ function htmlEmail(recipientName: string, data: InterviewEmailData) {
               An interview has been scheduled on the Hireon platform. Here are the details:
             </p>
 
-            <!-- Detail box -->
             <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f5ff;border-radius:12px;border:1px solid rgba(108,71,255,0.10);padding:4px 20px;border-spacing:0;">
               <tr><td style="padding:0 4px;">
                 <table width="100%" cellpadding="0" cellspacing="0">
@@ -116,7 +109,6 @@ function htmlEmail(recipientName: string, data: InterviewEmailData) {
               </td></tr>
             </table>
 
-            <!-- CTA button -->
             <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 18px;">
               <tr>
                 <td align="center">
@@ -131,7 +123,6 @@ function htmlEmail(recipientName: string, data: InterviewEmailData) {
               Or copy the link: <a href="${data.meetLink}" style="color:#6c47ff;text-decoration:none;">${data.meetLink}</a>
             </p>
 
-            <!-- Footer -->
             <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(108,71,255,0.08);padding-top:20px;">
               <tr>
                 <td align="center">
@@ -164,24 +155,21 @@ function textEmail(recipientName: string, data: InterviewEmailData) {
         '',
         `Candidate:   ${data.candidateName}`,
         `Interviewer: ${data.interviewerName}`,
-        data.requirementTitle ? `Position:    ${data.requirementTitle}` : '',
+        data.requirementTitle ? `Position:    ${data.requirementTitle}` : null,
         `Date & Time: ${dateStr}`,
         `Duration:    ${durationMins} minutes`,
         `Google Meet: ${data.meetLink}`,
         '',
         '— Hireon Team',
-    ].filter((l) => l !== null).join('\n');
+    ].filter(Boolean).join('\n');
 }
 
 export async function sendPasswordResetCode(toEmail: string, code: string, userName: string) {
-    const transport = createTransport();
-    if (!transport) {
-        console.warn('[email] SMTP not configured — skipping password reset email');
-        return;
-    }
+    const resend = getResend();
+    if (!resend) return;
 
-    await transport.sendMail({
-        from: config.smtpFrom,
+    await resend.emails.send({
+        from: config.emailFrom,
         to: toEmail,
         subject: 'Your Hireon Password Reset Code',
         html: `<!DOCTYPE html>
@@ -221,7 +209,6 @@ export async function sendPasswordResetCode(toEmail: string, code: string, userN
               We received a request to reset your Hireon password. Use the verification code below — it expires in <strong style="color:#fff;">15 minutes</strong>.
             </p>
 
-            <!-- Code box -->
             <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(108,71,255,0.12);border:2px solid rgba(108,71,255,0.35);border-radius:14px;margin:0 0 28px;">
               <tr>
                 <td style="padding:28px;text-align:center;">
@@ -252,11 +239,8 @@ export async function sendPasswordResetCode(toEmail: string, code: string, userN
 }
 
 export async function sendInterviewScheduledEmails(data: InterviewEmailData) {
-    const transport = createTransport();
-    if (!transport) {
-        console.warn('[email] SMTP not configured — skipping interview notifications');
-        return;
-    }
+    const resend = getResend();
+    if (!resend) return;
 
     const recipients = [
         { name: data.candidateName, email: data.candidateEmail, role: 'Candidate' },
@@ -266,8 +250,8 @@ export async function sendInterviewScheduledEmails(data: InterviewEmailData) {
 
     for (const r of recipients) {
         try {
-            await transport.sendMail({
-                from: config.smtpFrom,
+            await resend.emails.send({
+                from: config.emailFrom,
                 to: r.email,
                 subject: `Interview Scheduled — ${data.candidateName} on ${formatDate(data.startTime)}`,
                 text: textEmail(r.name, data),

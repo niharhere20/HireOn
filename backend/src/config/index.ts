@@ -24,10 +24,7 @@ export const config = {
     googleRedirectUri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5000/api/auth/google/callback',
     googleTokens: process.env.GOOGLE_TOKENS || '',
 
-    // Email (SMTP)
-    smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
-    smtpPort: parseInt(process.env.SMTP_PORT || '587', 10),
-    smtpUser: process.env.SMTP_USER || '',
-    smtpPass: process.env.SMTP_PASS || '',
-    smtpFrom: process.env.SMTP_FROM || 'HireOn <noreply@hireon.ai>',
+    // Email
+    resendApiKey: process.env.RESEND_API_KEY || '',
+    emailFrom: process.env.EMAIL_FROM || 'Hireon <onboarding@resend.dev>',
 } as const;
