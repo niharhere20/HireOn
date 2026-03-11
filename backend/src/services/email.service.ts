@@ -1,14 +1,17 @@
 import nodemailer from 'nodemailer';
+import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { config } from '../config';
 
 function createTransport() {
     if (!config.smtpUser || !config.smtpPass) return null;
-    return nodemailer.createTransport({
+    const options: any = {
         host: config.smtpHost,
         port: config.smtpPort,
         secure: config.smtpPort === 465,
+        family: 4,
         auth: { user: config.smtpUser, pass: config.smtpPass },
-    });
+    };
+    return nodemailer.createTransport(options as SMTPTransport.Options);
 }
 
 export interface InterviewEmailData {
